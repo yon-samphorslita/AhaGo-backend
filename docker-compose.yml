@@ -25,9 +25,9 @@ services:
       - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: laravel
-      MYSQL_USER: laravel
-      MYSQL_PASSWORD: laravel
+      MYSQL_DATABASE: ahago
+      MYSQL_USER: ahago
+      MYSQL_PASSWORD: ahago
     volumes:
       - db_data:/var/lib/mysql
     networks:
