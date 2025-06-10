@@ -30,15 +30,18 @@ class DriverSectionController extends Controller
 
         $section = DriverSection::create($validated);
 
-        if(!empty($validated['buttons'])) {
-            foreach ($validated['buttons'] as $btn){
-                $button = $section->buttons()->create($btn);
+        if (!empty($validated['buttons'])) {
+    foreach ($validated['buttons'] as $btn) {
+        // Create button for the section
+        $button = $section->buttons()->create($btn);
 
-                if(!empty($validated['descriptions'])) {
-                    $button->descriptions()->createMany($btn['description']);
-                }
-            }
+        // Check if button has descriptions and create them
+        if (!empty($btn['descriptions'])) {
+            $button->descriptions()->createMany($btn['descriptions']);
         }
+    }
+}
+
 
         return response()->json($section->load('buttons.descriptions'), 201);
     }
