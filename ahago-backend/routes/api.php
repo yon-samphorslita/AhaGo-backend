@@ -4,6 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use \App\Http\Controllers\AdminController;
 use \App\Http\Controllers\DriverController;
+use \App\Http\Controllers\DriverSectionController;
+use \App\Http\Controllers\ImageUploadController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -23,4 +25,9 @@ Route::controller(DriverController::class)->prefix('drivers')->group(function() 
     Route::get('/{driverId}','getDriver');
     Route::patch('/{driverId}','updateDriver');
     Route::delete('/{driverId}','deleteDriver');
+});
+
+Route::controller(DriverSectionController::class)->prefix('driver-sections')->group(function(){
+    Route::get('/', 'getSections');
+    Route::post('/', 'createSection');
 });
