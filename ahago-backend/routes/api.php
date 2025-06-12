@@ -31,3 +31,8 @@ Route::controller(DriverSectionController::class)->prefix('driver-sections')->gr
     Route::get('/', 'getSections');
     Route::post('/', 'createSection');
 });
+
+Route::controller(DriverSectionController::class)->prefix('driver-buttons')->group(function(){
+    Route::get('/', 'getButtons');
+    Route::post('/', 'createButton');
+});

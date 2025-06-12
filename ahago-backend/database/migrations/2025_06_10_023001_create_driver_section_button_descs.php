@@ -21,7 +21,7 @@ return new class extends Migration
 
         Schema::create('driver_section_buttons', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('section_id')->constrained('driver_sections')->onDelete('cascade');
+            $table->foreignId('section_id')->nullable()->constrained('driver_sections')->onDelete('cascade');
             $table->string('img_src')->nullable();
             $table->string('name')->nullable();
             $table->text('text')->nullable();

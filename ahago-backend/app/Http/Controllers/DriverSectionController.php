@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\DriverSection;
-
+use App\Models\DriverSectionButton;
 class DriverSectionController extends Controller
 {
     public function getSections(){
@@ -41,8 +41,37 @@ class DriverSectionController extends Controller
         }
     }
 }
-
-
         return response()->json($section->load('buttons.descriptions'), 201);
+    }
+
+        public function getButtons(){
+        $buttons = DriverSectionButton::with('descriptions')->get();
+        return response()->json($buttons);
+    }
+
+    public function createButton(Request $request){
+        $validated = $request->validate([
+            'img_src'=>'nullable|string',
+            'name'=>'nullable|string',
+            'text'=>'nullable|string',
+            'link'=>'nullable|string',
+            'descriptions'=>'nullable|array',
+            'descriptions.*.title'=>'nullable|string',
+            'descriptions.*.text'=>'nullable|string',
+            'descriptions.*.svg'=>'nullable|string',
+        ]);
+
+        $button = DriverSectionButton::create([
+            'img_src'=>$validated['img_src'] ?? null,
+            'name'=>$validated['name'] ?? null,
+            'text'=>$validated['text'] ?? null,
+            'link'=>$validated['link'] ?? null,
+            'section_id'=> null,
+        ]);
+
+        if (!empty($validated['descriptions'])) {
+            $button->descriptions()->createMany($validated['descriptions']);
+        }
+        return response()->json($button->load('descriptions'), 201);
     }
 }
