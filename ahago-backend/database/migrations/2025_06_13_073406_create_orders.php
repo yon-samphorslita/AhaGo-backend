@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('restaurant_id')->constrained('restaurant_profiles')->onDelete('cascade');
-            $table->foreignId('customer_id')->constrained('customer_profiles')->onDelete('cascade');
-            $table->foreignId('driver_id')->constrained('driver_profiles')->nullable()->onDelete('cascade');
-            $table->enum('status', ['pending', 'preparing', 'delivering', 'completed', 'cancelled'])->default('pending')->nullable;
+            $table->foreignId('restaurant_id')->nullable()->constrained('restaurant_profiles')->onDelete('cascade');
+            $table->foreignId('customer_id')->nullable()->constrained('customer_profiles')->onDelete('cascade');
+            $table->foreignId('driver_id')->nullable()->constrained('driver_profiles')->onDelete('cascade');
+            $table->enum('status', ['pending', 'preparing', 'delivering', 'completed', 'cancelled'])->default('pending')->nullable();
             $table->decimal('total_amount', 6, 2)->nullable();
-            $table->enum('payment_status', ['unpaid', 'paid', 'refunded'])->nullable()->default('unpaid');
+            $table->boolean('payment_status',)->nullable()->default(false);
             $table->string('remark')->nullable();
             $table->enum('order_type', ['dine-in', 'delivery'])->nullable();
             $table->timestamps();
