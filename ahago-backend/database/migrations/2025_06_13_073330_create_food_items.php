@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('food_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('restaurant_id')->unique()->constrained('restaurant_profiles')->onDelete('cascade');
-            $table->foreignId('category_id')->constrained()->unique()->onDelete('cascade')->nullable();
+            $table->foreignId('restaurant_id')->constrained('restaurant_profiles')->onDelete('cascade');
+            $table->foreignId('category_id')->constrained()->onDelete('cascade')->nullable();
             $table->string('name')->nullable();
             $table->decimal('price', 4, 2)->default(00.00)->nullable();
             $table->string('description')->nullable();

@@ -2,10 +2,12 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
+
+// run php artisan db:seed to exec DatabaseSeeder class,
+// which runs the registered seeders to call facs
 class DatabaseSeeder extends Seeder
 {
     /**
@@ -13,11 +15,15 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // Register seeders
+        $this->call([
+            UserSeeder::class,
         ]);
+        // User::factory()->count(10)->create();
+
+        // User::factory()->create([
+        //     'name' => 'Test User',
+        //     'email' => 'test@example.com',
+        // ]);
     }
 }
