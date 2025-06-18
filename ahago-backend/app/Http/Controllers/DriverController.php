@@ -11,12 +11,7 @@ class DriverController extends Controller
     // GET /api/drivers
     public function getDrivers()
     {
-        $drivers = Driver::all();
-
-        return response()->json([
-            'message' => 'Driver list fetched successfully',
-            'data' => $drivers
-        ]);
+        return $drivers = Driver::all();
     }
 
     // POST /api/drivers
