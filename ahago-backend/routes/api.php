@@ -9,8 +9,6 @@ use \App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\AuthController;
-
-use \App\Http\Controllers\UserController;
 use \App\Http\Controllers\CustomerProfileController;
 use \App\Http\Controllers\RestaurantProfileController;
 use \App\Http\Controllers\DriverProfileController;
