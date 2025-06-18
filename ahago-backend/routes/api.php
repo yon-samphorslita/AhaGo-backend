@@ -6,6 +6,10 @@ use \App\Http\Controllers\AdminController;
 use \App\Http\Controllers\DriverController;
 use \App\Http\Controllers\DriverSectionController;
 use \App\Http\Controllers\ImageUploadController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\MessageController;
+use App\Http\Controllers\AuthController;
+
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -36,3 +40,21 @@ Route::controller(DriverSectionController::class)->prefix('driver-buttons')->gro
     Route::get('/', 'getButtons');
     Route::post('/', 'createButton');
 });
+
+//// test user by sonit
+Route::prefix('users')->group(function () {
+    Route::get('/', [UserController::class, 'index']);          // List all users
+    Route::get('/{id}', [UserController::class, 'show']);       // Show user by ID
+    Route::post('/', [UserController::class, 'store']);         // Create new user
+    Route::put('/{id}', [UserController::class, 'update']);     // Update user by ID
+    Route::delete('/{id}', [UserController::class, 'destroy']); // Delete user by ID
+});
+//// test message by sonit
+Route::get('/messages', [MessageController::class, 'index']);       // List messages (filter by sender_id & receiver_id query params)
+Route::post('/messages', [MessageController::class, 'store']);      // Create new message
+Route::patch('/messages/{id}/read', [MessageController::class, 'markAsRead']); // Mark message as read
+
+/// test login with users table and frontend 
+Route::post('/{role}/login', [AuthController::class, 'login']);
+/// test signup with user
+Route::post('/signup', [AuthController::class, 'signup']);
