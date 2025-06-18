@@ -23,8 +23,8 @@ class AdminController extends Controller
     public function createAdmin(Request $request)
     {
         $validated = $request->validate([
-            'firstname' => 'required|string|max:100',
-            'lastname' => 'required|string|max:100',
+            'first_name' => 'required|string|max:100',
+            'last_name' => 'required|string|max:100',
             'email' => 'required|email|unique:admins,email',
             'password' => 'required|string|min:6',
             'address' => 'nullable|string',
@@ -67,8 +67,8 @@ class AdminController extends Controller
         }
 
         $validated = $request->validate([
-            'firstname' => 'sometimes|string|max:100',
-            'lastname' => 'sometimes|string|max:100',
+            'first_name' => 'sometimes|string|max:100',
+            'last_name' => 'sometimes|string|max:100',
             'email' => 'sometimes|email|unique:admins,email,' . $adminId,
             'password' => 'sometimes|string|min:6',
             'address' => 'nullable|string',

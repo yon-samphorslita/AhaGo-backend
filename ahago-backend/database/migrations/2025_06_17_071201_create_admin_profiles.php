@@ -7,14 +7,12 @@ return new class extends Migration {
     public function up(): void {
         Schema::create('admin_profiles', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id')->unique();
-            $table->string('firstname', 100);
-            $table->string('lastname', 100);
-            $table->string('address')->nullable();
+            $table->foreignId('user_id')->unique()->constrained()->onDelete('cascade');
+            $table->string('first_name', 100);
+            $table->string('last_name', 100);
             $table->string('city')->nullable();
             $table->timestamps();
 
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

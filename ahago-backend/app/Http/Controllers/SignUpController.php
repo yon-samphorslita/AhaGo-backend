@@ -18,17 +18,17 @@ class SignUpController extends Controller
 
     // Validate request input
     $validatedData = $request->validate([
-        'firstName' => 'required|string|max:255',
-        'lastName' => 'required|string|max:255',
+        'first_name' => 'required|string|max:255',
+        'last_name' => 'required|string|max:255',
         'email' => 'required|string|email|max:255|unique:users',
         'password' => 'required|string|min:8',
     ]);
 
     // Create new user
     $user = new User();
-    $user->firstName = $validatedData['firstName'];
-    $user->lastName = $validatedData['lastName'];
-    $user->name = $validatedData['firstName'] . ' ' . $validatedData['lastName'];
+    $user->first_name = $validatedData['first_name'];
+    $user->last_name = $validatedData['last_name'];
+    $user->name = $validatedData['first_name'] . ' ' . $validatedData['last_name'];
     $user->email = $validatedData['email'];
     $user->password = Hash::make($validatedData['password']);
     $user->role = $role;

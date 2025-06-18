@@ -7,8 +7,8 @@ class AdminProfile extends Model
 {
     protected $fillable = [
         'user_id',
-        'firstname',
-        'lastname',
+        'first_name',
+        'last_name',
         'address',
         'city',
         'phone_number',

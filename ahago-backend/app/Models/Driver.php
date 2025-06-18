@@ -11,8 +11,8 @@ class Driver extends Authenticatable
     use HasFactory, Notifiable;
 
     protected $fillable = [
-        'firstname',
-        'lastname',
+        'first_name',
+        'last_name',
         'email',
         'phone_number',
         'address',

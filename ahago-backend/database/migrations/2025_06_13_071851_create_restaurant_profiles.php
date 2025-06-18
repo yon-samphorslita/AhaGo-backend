@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('restaurant_profiles', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->unique()->constrained()->onDelete('cascade');
-            $table->string('name');
+            $table->string('name')->nullable();
             $table->string('working_hours')->nullable();
             $table->string('description')->nullable();
             $table->decimal('latitude', 10, 7)->nullable();

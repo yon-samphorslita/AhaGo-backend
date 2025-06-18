@@ -12,12 +12,12 @@ class AuthController extends Controller
     public function signup(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required_if:role,restaurant|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
-            'role' => 'required|in:admin,customer,owner,driver',
-            'first_name' => 'required_if:role,driver,admin|string',
-            'last_name' => 'required_if:role,driver,admin|string',
+            'role' => 'required|in:admin,customer,restaurant,driver',
+            'first_name' => 'required_if:role,driver,admin,customer|string',
+            'last_name' => 'required_if:role,driver,admin,customer|string',
         ]);
 
         DB::beginTransaction();
@@ -67,11 +67,9 @@ class AuthController extends Controller
 
                 case 'admin':
                     $user->adminProfile()->create([
-                        'firstname' => $request->first_name,
-                        'lastname' => $request->last_name,
-                        'address' => $request->address ?? null,
+                        'first_name' => $request->first_name,
+                        'last_name' => $request->last_name,
                         'city' => $request->city ?? null,
-                        'phone_number' => $request->phone_number ?? null,
                     ]);
                     break;
             }

@@ -14,8 +14,8 @@ class RegisterAdminController extends Controller
     {
         // Validation rules
         $validator = Validator::make($request->all(), [
-            'firstname' => 'required|string|max:100',
-            'lastname' => 'required|string|max:100',
+            'first_name' => 'required|string|max:100',
+            'last_name' => 'required|string|max:100',
             'email' => 'required|email|unique:admins,email',
             'password' => 'required|string|min:6|confirmed', // password_confirmation needed
             'address' => 'nullable|string',
@@ -29,8 +29,8 @@ class RegisterAdminController extends Controller
 
         // Create new admin
         $admin = Admin::create([
-            'firstname' => $request->firstname,
-            'lastname' => $request->lastname,
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'address' => $request->address,
