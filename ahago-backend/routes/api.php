@@ -18,33 +18,10 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\AuthController;
 use \App\Http\Controllers\CustomerProfileController;
 use \App\Http\Controllers\RestaurantProfileController;
+
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
-
-Route::controller(UserController::class)->prefix('users')->group(function() {
-    Route::get('/','getAllUsers');
-    Route::post('/','createUser');
-    Route::get('/{userId}','getUser');
-    Route::patch('/{userId}','updateUser');
-    Route::delete('/{userId}','deleteUser');
-});
-
-// Route::controller(AdminController::class)->prefix('admins')->group(function() {
-//     Route::get('/','getAdmins');
-//     Route::post('/','createAdmin');
-//     Route::get('/{adminId}','getAdmin');
-//     Route::patch('/{adminId}','updateAdmin');
-//     Route::delete('/{adminId}','deleteAdmin');
-// });
-
-// Route::controller(DriverController::class)->prefix('drivers')->group(function() {
-//     Route::get('/','getDrivers');
-//     Route::post('/','createDriver');
-//     Route::get('/{driverId}','getDriver');
-//     Route::patch('/{driverId}','updateDriver');
-//     Route::delete('/{driverId}','deleteDriver');
-// });
 
 Route::controller(DriverSectionController::class)->prefix('driver-sections')->group(function(){
     Route::get('/', 'getSections');
@@ -54,10 +31,6 @@ Route::controller(DriverSectionController::class)->prefix('driver-sections')->gr
 Route::controller(DriverSectionController::class)->prefix('driver-buttons')->group(function(){
     Route::get('/', 'getButtons');
     Route::post('/', 'createButton');
-});
-Route::controller(UserController::class)->prefix('users')->group(function() {
-    Route::get('/', 'getUsers');
-    Route::post('/', 'createUser');
 });
 
 Route::controller(CustomerProfileController::class)->prefix('customers')->group(function() {
