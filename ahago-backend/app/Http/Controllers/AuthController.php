@@ -55,7 +55,7 @@ class AuthController extends Controller
                     ]);
                     break;
 
-                case 'owner':
+                case 'restaurant':
                     $user->restaurantProfile()->create([
                         'name' => $request->restaurant_name ?? $request->name,
                         'working_hours' => $request->working_hours ?? null,
@@ -93,7 +93,7 @@ class AuthController extends Controller
 
     public function login(Request $request, $role)
     {
-        $allowedRoles = ['admin', 'customer', 'driver', 'owner'];
+        $allowedRoles = ['admin', 'customer', 'driver', 'restaurant'];
 
         if (!in_array($role, $allowedRoles)) {
             return response()->json(['message' => 'Invalid role'], 400);
