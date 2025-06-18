@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Order;
+use App\Models\Notification;
 class OrderController extends Controller
 {
     public function getOrders(){
@@ -26,5 +27,21 @@ class OrderController extends Controller
         $order = Order::create($validated);
 
         return response()->json($order, 201);
+    }
+
+    public function acceptOrder(Request $request, $orderId) {
+        $driverId = $request->driver_id;
+
+        $order = Order::find($orderId);
+        $order->driver_id = $driverId;
+        $order->status = 'preparing';
+        $order->save();
+
+        Notification::create([
+            'driver_id'=>$driverId,
+            'title' => 'You have accepted the order',
+            'message' => "You have accepted Order #{$order->id}. Please proceed to the restaurant.",
+        ]);
+        return response()->json($order);
     }
 }

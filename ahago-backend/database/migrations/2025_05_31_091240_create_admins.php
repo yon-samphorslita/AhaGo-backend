@@ -11,15 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('admins', function (Blueprint $table) {
+        Schema::create('admin_profiles', function (Blueprint $table) {
             $table->id();
-            $table->string('firstname', 100);
-            $table->string('lastname', 100);
-            $table->string('email')->unique();
-            $table->string('address')->nullable();
-            $table->string('password');
+            $table->string('firstname', 100)->nullable();
+            $table->string('lastname', 100)->nullable();
             $table->string('city')->nullable();
-            $table->string('phone_number')->nullable();
             $table->timestamps();
         });
     }

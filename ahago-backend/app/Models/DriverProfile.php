@@ -18,4 +18,8 @@ class DriverProfile extends Model
         'vehicle_color',
         'license_plate'
     ];
+
+    public function driver() {
+        return $this -> belongsTo(User::class, 'user_id');
+    }
 }

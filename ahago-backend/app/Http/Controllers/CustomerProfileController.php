@@ -7,7 +7,7 @@ use App\Models\CustomerProfile;
 class CustomerProfileController extends Controller
 {
     public function getCustomers(){
-    $customers = CustomerProfile::with('user') // eager load related user
+    $customers = CustomerProfile::with('user') // load related user
             ->whereHas('user', function ($query) {
                 $query->where('role', 'customer');
             })
