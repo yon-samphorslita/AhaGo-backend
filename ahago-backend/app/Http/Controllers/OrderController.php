@@ -32,18 +32,24 @@ class OrderController extends Controller
             'driver_id' => 'integer',
             'status' => ['nullable', new Enum(OrderStatus::class)],
             'total_amount' => ['nullable', 'numeric'],
-            'payment_status' => ['nullable', new Enum(PaymentStatus::class)],
+            'payment_status' => 'nullable|boolean',
             'remark' => ['string', 'nullable'],
             'order_type' => ['nullable', new Enum(OrderType::class)]
         ]);
 
         $order = Order::create($validated);
 
+        // Trigger notification if driver assigned and status is pending
+        if (!empty($order->driver_id) && $order->status === OrderStatus::PENDING->value) {
+            $this->notifyDriverIncomingOrder($order->driver_id, $order->id);
+        }
+
         return response()->json([
             'message' => 'Order created successfully',
             'data' => $order
         ], 201);
     }
+
 
     // GET /api/orders/{orderId}
     public function getOrder($orderId)
@@ -75,7 +81,7 @@ class OrderController extends Controller
             'driver_id' => 'integer',
             'status' => ['sometimes', new Enum(OrderStatus::class)],
             'total_amount' => ['nullable', 'numeric'],
-            'payment_status' => ['sometimes', new Enum(PaymentStatus::class)],
+            'payment_status' => 'nullable|boolean',
             'remark' => ['string', 'nullable'],
             'order_type' => ['sometimes', new Enum(OrderType::class)]
         ]);
@@ -113,7 +119,7 @@ class OrderController extends Controller
         }
 
         $validated = $request->validate([
-            'status' => ['required', new \Illuminate\Validation\Rules\Enum(OrderStatus::class)],
+            'status' => ['required', new Enum(OrderStatus::class)],
         ]);
 
         $order->status = $validated['status'];
@@ -149,20 +155,20 @@ class OrderController extends Controller
 
     // Example usage when assigning order:
    public function assignOrderToDriver(Request $request)
-{
-    $validated = $request->validate([
-        'order_id' => 'required|exists:orders,id',
-        'driver_id' => 'required|exists:driver_profiles,id', // assuming you have a drivers table
-    ]);
+    {
+        $validated = $request->validate([
+            'order_id' => 'required|exists:orders,id',
+            'driver_id' => 'required|exists:driver_profiles,id', // assuming you have a drivers table
+        ]);
 
-    $order = Order::find($validated['order_id']);
-    $order->driver_id = $validated['driver_id'];
-    $order->status = OrderStatus::Incoming; // or whatever status applies
-    $order->save();
+        $order = Order::find($validated['order_id']);
+        $order->driver_id = $validated['driver_id'];
+        $order->status = OrderStatus::Pending; // or whatever status applies
+        $order->save();
 
-    $this->notifyDriverIncomingOrder($validated['driver_id'], $validated['order_id']);
+        $this->notifyDriverIncomingOrder($validated['driver_id'], $validated['order_id']);
 
-    return response()->json(['message' => 'Order assigned and driver notified']);
-}
+        return response()->json(['message' => 'Order assigned and driver notified']);
+    }
 
 }

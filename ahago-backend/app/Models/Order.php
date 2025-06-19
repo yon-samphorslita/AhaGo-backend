@@ -28,4 +28,8 @@ class Order extends Model
     {
         return $this->belongsTo(CustomerProfile::class, 'customer_id', 'id');
     }
+
+    public function driver() {
+        return $this->belongsTo(DriverProfile::class, 'driver_id', 'id');
+    }
 }

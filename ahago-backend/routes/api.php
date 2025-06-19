@@ -18,6 +18,7 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\AuthController;
 use \App\Http\Controllers\CustomerProfileController;
 use \App\Http\Controllers\RestaurantProfileController;
+use \App\Http\Controllers\NotificationController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -121,3 +122,7 @@ Route::controller(CustomerController::class)->prefix('customers')->group(functio
     Route::delete('/{customerId}','deleteCustomer');
 });
 
+Route::controller(NotificationController::class)->prefix('notifications')->group(function() {
+    Route::get('/','getNotifications');
+    Route::get('/driver/{driverId}','getDriverNotifications');
+});

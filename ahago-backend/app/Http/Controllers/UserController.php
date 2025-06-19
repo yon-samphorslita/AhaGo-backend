@@ -12,7 +12,17 @@ class UserController extends Controller
     // List all users
     public function index()
     {
-        $users = User::all();
+        $roles = ['driver', 'customer', 'restaurant', 'admin'];
+
+        $users = User::whereIn('role', $roles)
+            ->with([
+                'driverProfile',
+                'customerProfile',
+                'restaurantProfile',
+                'adminProfile'
+            ])
+            ->get();
+
         return response()->json($users);
     }
 
