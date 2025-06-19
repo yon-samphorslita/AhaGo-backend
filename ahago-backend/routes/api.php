@@ -51,6 +51,7 @@ Route::controller(DriverProfileController::class)->prefix('drivers')->group(func
 Route::controller(OrderController::class)->prefix('orders')->group(function() {
     Route::get('/', 'getOrders');
     Route::post('/', 'createOrder');
+    Route::patch('/{id}', 'updateOrderStatus');
 });
 
 //// test user by sonit

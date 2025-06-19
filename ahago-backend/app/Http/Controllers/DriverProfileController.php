@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\DriverProfile;
 use Illuminate\Http\Request;
-
 class DriverProfileController extends Controller
 {
     // GET /api/drivers
