@@ -20,6 +20,7 @@ use \App\Http\Controllers\CustomerProfileController;
 use \App\Http\Controllers\RestaurantProfileController;
 use \App\Http\Controllers\NotificationController;
 use \App\Http\Controllers\UploadController;
+use App\Http\Controllers\BannerController;
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -71,8 +72,10 @@ Route::prefix('users')->group(function () {
     Route::get('/{id}', [UserController::class, 'show']);       // Show user by ID
     Route::post('/', [UserController::class, 'store']);         // Create new user
     Route::put('/{id}', [UserController::class, 'update']);     // Update user by ID
+    Route::post('/{id}', [UserController::class, 'update']);    // for _method override (POST acting as PUT)
     Route::delete('/{id}', [UserController::class, 'destroy']); // Delete user by ID
 });
+
 //// test message by sonit
 Route::get('/messages', [MessageController::class, 'index']);       // List messages (filter by sender_id & receiver_id query params)
 Route::post('/messages', [MessageController::class, 'store']);      // Create new message
@@ -140,3 +143,4 @@ Route::post('/upload', [UploadController::class, 'upload']);
 Route::controller(UploadController::class)->prefix('upload')->group(function() {
     Route::post('/', 'upload');
 });
+Route::apiResource('banners', BannerController::class);

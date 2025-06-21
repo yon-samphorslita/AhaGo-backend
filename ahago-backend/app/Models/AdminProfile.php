@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -7,12 +8,15 @@ class AdminProfile extends Model
 {
     protected $fillable = [
         'user_id',
-        'first_name',
-        'last_name',
+        'firstname',
+        'lastname',
         'address',
         'city',
         'phone_number',
+        'img_src',
     ];
+
+    public $timestamps = true;
 
     public function user()
     {
