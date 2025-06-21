@@ -24,6 +24,14 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+Route::prefix('auth')->group(function () {
+
+    Route::middleware('auth:sanctum')->get('/currentUser', [AuthController::class, 'currentUser']);
+});
+
+Route::post('/signup', [AuthController::class, 'signup']);
+Route::post('/{role}/login', [AuthController::class, 'login']);
+
 Route::controller(DriverSectionController::class)->prefix('driver-sections')->group(function(){
     Route::get('/', 'getSections');
     Route::post('/', 'createSection');
@@ -67,12 +75,6 @@ Route::prefix('users')->group(function () {
 Route::get('/messages', [MessageController::class, 'index']);       // List messages (filter by sender_id & receiver_id query params)
 Route::post('/messages', [MessageController::class, 'store']);      // Create new message
 Route::patch('/messages/{id}/read', [MessageController::class, 'markAsRead']); // Mark message as read
-
-/// test login with users table and frontend 
-Route::post('/{role}/login', [AuthController::class, 'login']);
-/// test signup with user
-Route::post('/signup', [AuthController::class, 'signup']);
-
 
 Route::controller(RestaurantController::class)->prefix('rests')->group(function() {
     Route::get('/','getAllRests');

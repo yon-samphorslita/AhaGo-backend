@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
@@ -76,8 +77,11 @@ class AuthController extends Controller
 
             DB::commit();
 
+            $token = $user->createToken('auth_token')->plainTextToken;
+
             return response()->json([
                 'message' => 'Registration successful',
+                'token' => $token,
                 'user' => $request->role === 'admin' ? $user->load('adminProfile') :  $user->load($request->role . 'Profile')
             ], 201);
 
@@ -112,8 +116,36 @@ class AuthController extends Controller
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
+        $token = $user->createToken('auth_token')->plainTextToken;
+
         return response()->json([
             'message' => 'Login successful',
+            'token' => $token,
+            'user' => $user -> load($role . 'Profile'),
+        ]);
+    }
+    public function currentUser(Request $request)
+    {
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        $role = $user->role . 'Profile';
+
+        if (!method_exists($user, $role)) {
+            // Optional: fallback if relation not found
+            return response()->json([
+                'message' => 'User profile relation not found',
+                'user' => $user,
+            ]);
+        }
+
+        $user->load($role);
+
+        return response()->json([
+            'message' => 'User profile fetched successfully',
             'user' => $user,
         ]);
     }
