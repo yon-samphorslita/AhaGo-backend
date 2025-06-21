@@ -11,4 +11,8 @@ class CustomerProfile extends Model
         'gender',
         'city'
     ];
+
+    public function user() {
+        return $this->belongsTo(User::class);
+    }
 }
