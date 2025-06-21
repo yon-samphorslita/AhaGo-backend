@@ -17,7 +17,13 @@ class FoodItem extends Model
         'img_url',
     ];
 
-    public function category() {
+    public function category() 
+    {
         return $this->belongsTo(Category::class);
+    }
+
+    public function orders()
+    {
+        return $this->belongsToMany(Order::class);
     }
 }

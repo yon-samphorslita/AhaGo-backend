@@ -19,6 +19,14 @@ class Order extends Model
         'order_type',
     ];
 
+
+    public function foodItems()
+    {
+        return $this->belongsToMany(FoodItem::class, 'order_items')
+                    ->withPivot('quantity', 'price')
+                    ->withTimestamps();
+    }
+
     public function restaurant()
     {
         return $this->belongsTo(RestaurantProfile::class, 'restaurant_id', 'id');

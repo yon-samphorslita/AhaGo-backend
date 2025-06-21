@@ -13,6 +13,7 @@ use \App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderItemController;
 use App\Http\Controllers\RestaurantController;
+use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\AuthController;
@@ -91,13 +92,17 @@ Route::controller(CategoryController::class)->prefix('categories')->group(functi
 Route::controller(FoodItemController::class)->prefix('foodItems')->group(function() {
     Route::get('/','getFoodItems');
     Route::post('/','createFoodItem');
+    Route::get('/top','getTopSellers'); // get 3 most sold items
     Route::get('/{foodItemId}','getFoodItem');
+    Route::get('/rest/{restId}','getFoodItemsByRestId');
     Route::patch('/{foodItemId}','updateFoodItem');
     Route::delete('/{foodItemId}','deleteFoodItem');
 });
 
 Route::controller(OrderController::class)->prefix('orders')->group(function() {
     Route::get('/','getOrders');
+    Route::get('/rest/{restId}','getOrdersByRest');
+    Route::get('/recent/{restId}','getRecentOrders');    // last 7 days on dashboard
     Route::post('/','createOrder');
     Route::get('/{orderId}','getOrder');
     Route::patch('/{orderId}','updateOrder');
@@ -107,9 +112,9 @@ Route::controller(OrderController::class)->prefix('orders')->group(function() {
 Route::controller(OrderItemController::class)->prefix('orderItems')->group(function() {
     Route::get('/','getAllOrderItems');
     Route::post('/','createOrderItem');
-    Route::get('/{orderId}','getOrderItems');
-    Route::patch('/{orderId}','updateOrderItem');
-    Route::delete('/{orderId}','deleteOrderItem');
+    Route::get('/{orderItemId}','getOrderItems');
+    Route::patch('/{orderItemId}','updateOrderItem');
+    Route::delete('/{orderItemId}','deleteOrderItem');
 });
 
 Route::controller(CustomerController::class)->prefix('customers')->group(function() {
@@ -118,5 +123,15 @@ Route::controller(CustomerController::class)->prefix('customers')->group(functio
     Route::get('/{customerId}','getCustomer');
     Route::patch('/{customerId}','updateCustomer');
     Route::delete('/{customerId}','deleteCustomer');
+});
+
+Route::controller(TransactionController::class)->prefix('transactions')->group(function() {
+    Route::get('/','getTransactions');
+    Route::get('/recent/{restId}','getRecentTransactions'); 
+    Route::post('/','createTransaction');
+    Route::get('/{tId}','getTransaction');
+    Route::get('/rest/{rId}','getAllByRestId');
+    // Route::patch('/{customerId}','updateCustomer');
+    Route::delete('/{tId}','deleteTransaction');
 });
 
