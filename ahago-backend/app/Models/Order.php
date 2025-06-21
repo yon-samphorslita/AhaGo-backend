@@ -32,4 +32,8 @@ class Order extends Model
     public function driver() {
         return $this->belongsTo(DriverProfile::class, 'driver_id', 'id');
     }
+
+    public function orderItems() {
+        return $this->hasMany(OrderItem::class);
+    }
 }

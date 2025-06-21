@@ -5,16 +5,17 @@ namespace App\Http\Controllers;
 use Illuminate\Validation\Rules\Enum;
 use App\Enums\OrderStatus;
 use App\Enums\OrderType;
-use App\Enums\PaymentStatus;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use App\Models\Notification;
+use Illuminate\Support\Facades\Log;
+
 class OrderController extends Controller
 {
     // GET /api/orders
     public function getOrders(Request $request)
     {
-        $query = Order::with(['restaurant', 'customer']);
+        $query = Order::with(['restaurant', 'customer', 'orderItems', 'orderItems.foodItem']);
 
         if ($request->has('status')) {
             $query->where('status', $request->status);
@@ -39,22 +40,16 @@ class OrderController extends Controller
 
         $order = Order::create($validated);
 
-        // Trigger notification if driver assigned and status is pending
-        if (!empty($order->driver_id) && $order->status === OrderStatus::PENDING->value) {
-            $this->notifyDriverIncomingOrder($order->driver_id, $order->id);
-        }
-
         return response()->json([
             'message' => 'Order created successfully',
-            'data' => $order
+            'data' => $order,
         ], 201);
     }
-
 
     // GET /api/orders/{orderId}
     public function getOrder($orderId)
     {
-        $order = Order::find($orderId);
+        $order = Order::with(['restaurant', 'customer', 'orderItems', 'orderItems.foodItem'])->find($orderId);
 
         if (!$order) {
             return response()->json(['message' => 'Order not found'], 404);
@@ -62,7 +57,7 @@ class OrderController extends Controller
 
         return response()->json([
             'message' => "Order #$orderId fetched successfully",
-            'data' => $order
+            'data' => $order,
         ]);
     }
 
@@ -83,14 +78,20 @@ class OrderController extends Controller
             'total_amount' => ['nullable', 'numeric'],
             'payment_status' => 'nullable|boolean',
             'remark' => ['string', 'nullable'],
-            'order_type' => ['sometimes', new Enum(OrderType::class)]
+            'order_type' => ['sometimes', new Enum(OrderType::class)],
         ]);
 
+        $oldStatus = $order->status;
         $order->update($validated);
+        $newStatus = $order->status;
+
+        if ($oldStatus !== $newStatus && $order->driver_id) {
+            $this->sendNotificationByStatus($order->driver_id, $order->id, $newStatus);
+        }
 
         return response()->json([
             'message' => "Order #$orderId updated successfully",
-            'data' => $order
+            'data' => $order,
         ]);
     }
 
@@ -105,70 +106,56 @@ class OrderController extends Controller
 
         $order->delete();
 
-        return response()->json([
-            'message' => "Order #$orderId deleted successfully"
-        ]);
+        return response()->json(['message' => "Order #$orderId deleted successfully"]);
     }
 
-    public function updateOrderStatus(Request $request, $id)
-    {
-        $order = Order::find($id);
-
-        if (!$order) {
-            return response()->json(['message' => 'Order not found'], 404);
-        }
-
-        $validated = $request->validate([
-            'status' => ['required', new Enum(OrderStatus::class)],
-        ]);
-
-        $order->status = $validated['status'];
-        $order->save();
-
-        return response()->json(['message' => 'Order updated successfully', 'data' => $order]);
-    }
-    
-    public function notifyDriverIncomingOrder($driverId, $orderId)
-    {
-        $title = "New Incoming Order";
-        $message = "You have a new incoming order #{$orderId}. Please check your app for details.";
-
-        Notification::create([
-            'driver_id' => $driverId,
-            'title' => $title,
-            'message' => $message,
-        ]);
-    }
-
-    // When a driver accepts an order:
-    public function notifyDriverAcceptedOrder($driverId, $orderId)
-    {
-        $title = "Order Accepted";
-        $message = "You have successfully accepted order #{$orderId}. Please proceed with the delivery.";
-
-        Notification::create([
-            'driver_id' => $driverId,
-            'title' => $title,
-            'message' => $message,
-        ]);
-    }
-
-    // Example usage when assigning order:
-   public function assignOrderToDriver(Request $request)
+    // POST /api/orders/assign
+    public function assignOrderToDriver(Request $request)
     {
         $validated = $request->validate([
             'order_id' => 'required|exists:orders,id',
-            'driver_id' => 'required|exists:driver_profiles,id', // assuming you have a drivers table
+            'driver_id' => 'required|exists:driver_profiles,id',
         ]);
 
         $order = Order::find($validated['order_id']);
         $order->driver_id = $validated['driver_id'];
-        $order->status = OrderStatus::Pending; // or whatever status applies
+        $order->status = OrderStatus::PENDING->value;
         $order->save();
 
-        $this->notifyDriverIncomingOrder($validated['driver_id'], $validated['order_id']);
+        // ❌ DO NOT notify here to prevent duplication
+        // The updateOrder() will notify when status is set
 
-        return response()->json(['message' => 'Order assigned and driver notified']);
+        return response()->json(['message' => 'Order assigned successfully']);
     }
+
+    // Status Notification Dispatcher
+protected function sendNotificationByStatus($driverId, $orderId, $status)
+{
+    switch ($status) {
+        case OrderStatus::PENDING->value:
+            $this->notifyDriver($driverId, $orderId, "New Incoming Order", "You have a new incoming order #$orderId. Please check your app for details.");
+            break;
+
+        case OrderStatus::PREPARING->value:
+            $this->notifyDriver($driverId, $orderId, "Order Accepted", "You have successfully accepted order #$orderId. Please proceed with the delivery.");
+            break;
+
+        case OrderStatus::COMPLETED->value:
+            $this->notifyDriver($driverId, $orderId, "Order Completed", "Order #$orderId has been completed successfully. Thank you for your service!");
+            break;
+    }
+}
+
+
+    // Create Notification Only If It Doesn't Exist
+protected function notifyDriver($driverId, $orderId, $title, $message)
+{
+    Notification::create([
+        'driver_id' => $driverId,
+        'title' => $title,
+        'message' => $message,
+    ]);
+    Log::info("Notification sent: [$title] to driver $driverId for order $orderId");
+}
 
 }

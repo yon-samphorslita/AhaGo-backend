@@ -12,4 +12,14 @@ class OrderItem extends Model
         'quantity',
         'price'
     ];
+
+    public function foodItem()
+    {
+        return $this->belongsTo(FoodItem::class, 'food_item_id', 'id');
+    }
+    
+    public function order()
+    {
+        return $this->belongsTo(Order::class);
+    }
 }
