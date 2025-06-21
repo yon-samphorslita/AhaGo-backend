@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DriverProfile;
+use App\Models\User;
 use Illuminate\Http\Request;
 class DriverProfileController extends Controller
 {
@@ -90,5 +91,45 @@ class DriverProfileController extends Controller
         return response()->json([
             'message' => "DriverProfile #$driverId deleted successfully"
         ]);
+    }
+
+    public function updateDriverProfile(Request $request)
+    {
+        $user = auth()->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        // Validate user fields
+        $validatedUser = $request->validate([
+            'email' => 'required|email',
+            'phone_number' => 'nullable|string',
+            'address' => 'nullable|string',
+            'img_src' => 'nullable|string',
+        ]);
+
+        // Validate driver profile fields
+        $validatedProfile = $request->validate([
+            'driver_profile.first_name' => 'nullable|string',
+            'driver_profile.last_name' => 'nullable|string',
+            'driver_profile.id_card' => 'nullable|string',
+            'driver_profile.vehicle_type' => 'nullable|string',
+            'driver_profile.vehicle_name' => 'nullable|string',
+            'driver_profile.vehicle_color' => 'nullable|string',
+            'driver_profile.license_plate' => 'nullable|string',
+        ]);
+
+        // Update User model fields
+        $user->update($validatedUser);
+
+        // Update DriverProfile model fields (create if missing)
+        if ($user->driverProfile) {
+            $user->driverProfile->update($request->input('driver_profile'));
+        } else {
+            $user->driverProfile()->create($request->input('driver_profile'));
+        }
+
+        return response()->json(['message' => 'Driver profile updated successfully']);
     }
 }

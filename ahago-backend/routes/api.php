@@ -28,6 +28,7 @@ Route::prefix('auth')->group(function () {
 
     Route::middleware('auth:sanctum')->get('/currentUser', [AuthController::class, 'currentUser']);
 });
+Route::middleware('auth:sanctum')->post('/driver/photo-upload', [UploadController::class, 'uploadDriverPhoto']);
 
 Route::post('/signup', [AuthController::class, 'signup']);
 Route::post('/{role}/login', [AuthController::class, 'login']);
@@ -56,6 +57,7 @@ Route::controller(DriverProfileController::class)->prefix('drivers')->group(func
     Route::get('/', 'getDrivers');
     Route::post('/', 'createDriver');
 });
+Route::middleware('auth:sanctum')->put('/driver/profile', [DriverProfileController::class, 'updateDriverProfile']);
 
 Route::controller(OrderController::class)->prefix('orders')->group(function() {
     Route::get('/', 'getOrders');
@@ -134,3 +136,7 @@ Route::controller(NotificationController::class)->prefix('notifications')->group
 });
 
 Route::post('/upload', [UploadController::class, 'upload']);
+
+Route::controller(UploadController::class)->prefix('upload')->group(function() {
+    Route::post('/', 'upload');
+});
