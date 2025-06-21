@@ -11,16 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('orders', function (Blueprint $table) {
+        Schema::create('notifications', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('restaurant_id')->nullable()->constrained('restaurant_profiles')->onDelete('cascade');
             $table->foreignId('customer_id')->nullable()->constrained('customer_profiles')->onDelete('cascade');
+            $table->foreignId('restaurant_id')->nullable()->constrained('restaurant_profiles')->onDelete('cascade');
             $table->foreignId('driver_id')->nullable()->constrained('driver_profiles')->onDelete('cascade');
-            $table->enum('status', ['pending', 'preparing', 'delivering', 'completed', 'cancelled'])->default('pending')->nullable();
-            $table->decimal('total_amount', 6, 2)->nullable();
-            $table->boolean('payment_status',)->nullable()->default(false);
-            $table->string('remark')->nullable();
-            $table->enum('order_type', ['dine-in', 'delivery'])->nullable();
+            $table->foreignId('admin_id')->nullable()->constrained('admin_profiles')->onDelete('cascade');
+            $table->string('title')->nullable();
+            $table->text('message')->nullable();
             $table->timestamps();
         });
     }
@@ -30,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('orders');
+        Schema::dropIfExists('notifications');
     }
 };

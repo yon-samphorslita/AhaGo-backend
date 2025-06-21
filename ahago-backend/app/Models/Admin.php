@@ -2,17 +2,16 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable; // Use if Admins are also authenticatable
-use Illuminate\Notifications\Notifiable;
 
-class Admin extends Authenticatable
+class Admin extends Model
 {
-    use HasFactory, Notifiable;
+    use HasFactory;
 
     protected $fillable = [
-        'firstname',
-        'lastname',
+        'first_name',
+        'last_name',
         'email',
         'address',
         'password',
@@ -23,4 +22,16 @@ class Admin extends Authenticatable
     protected $hidden = [
         'password',
     ];
+
+    // If you want to hash password in model (optional)
+    public function setPasswordAttribute($value)
+    {
+        $this->attributes['password'] = bcrypt($value);
+    }
+
+    // Relationship back to User if needed
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

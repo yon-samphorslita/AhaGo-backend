@@ -18,8 +18,8 @@ class DriverController extends Controller
     public function createDriver(Request $request)
     {
         $validated = $request->validate([
-            'firstname' => 'required|string|max:100',
-            'lastname' => 'required|string|max:100',
+            'first_name' => 'required|string|max:100',
+            'last_name' => 'required|string|max:100',
             'email' => 'required|email|unique:drivers,email',
             'password' => 'required|string|min:6',
             'phone_number' => 'nullable|string',
@@ -66,8 +66,8 @@ class DriverController extends Controller
         }
 
         $validated = $request->validate([
-            'firstname' => 'sometimes|string|max:100',
-            'lastname' => 'sometimes|string|max:100',
+            'first_name' => 'sometimes|string|max:100',
+            'last_name' => 'sometimes|string|max:100',
             'email' => 'sometimes|email|unique:drivers,email,' . $driverId,
             'password' => 'sometimes|string|min:6',
             'phone_number' => 'nullable|string',

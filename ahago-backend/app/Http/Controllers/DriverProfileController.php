@@ -8,18 +8,28 @@ use Illuminate\Http\Request;
 class DriverProfileController extends Controller
 {
     // GET /api/drivers
-    public function getDrivers()
-    {
-        return $drivers = DriverProfile::all();
+    public function getDrivers() {
+        $drivers = DriverProfile::with('user') // load related user
+            ->whereHas('user', function ($query) {
+                $query->where('role', 'driver');
+            })
+            ->get();
+
+        return response()->json($drivers); 
     }
 
     // POST /api/drivers
     public function createDriver(Request $request)
     {
         $validated = $request->validate([
-            'user_id' => 'integer',
-            'first_name' => 'string',
-            'last_name' => 'string'
+            'user_id' => 'required',
+            'first_name' => 'nullable|string',
+            'last_name' => 'nullable|string',
+            'id_card'=> 'nullable|string',
+            'vehicle_type'=> 'nullable|string',
+            'vehicle_name'=> 'nullable|string',
+            'vehicle_color'=> 'nullable|string',
+            'license_plate'=> 'nullable|string',
         ]);
 
         $driver = DriverProfile::create($validated);

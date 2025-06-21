@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('customer_id')->constrained('customer_profiles')->onDelete('cascade')->nullable();
-            $table->foreignId('restaurant_id')->constrained('restaurant_profiles')->onDelete('cascade')->nullable();
-            $table->foreignId('order_id')->constrained()->nullable()->onDelete('cascade');
+            $table->foreignId('customer_id')->nullable()->constrained('customer_profiles')->onDelete('cascade');
+            $table->foreignId('restaurant_id')->nullable()->constrained('restaurant_profiles')->onDelete('cascade');
+            $table->foreignId('order_id')->nullable()->constrained('orders')->onDelete('cascade');
             $table->enum('payment', ['cash', 'card'])->nullable()->default('cash');
             $table->integer('amount')->nullable();
             $table->timestamps();

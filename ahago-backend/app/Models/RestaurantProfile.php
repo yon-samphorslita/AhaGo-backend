@@ -3,17 +3,29 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 class RestaurantProfile extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
-        'name',
         'user_id',
+        'name',
         'working_hours',
-        'description'
+        'description',
+        'latitude',
+        'longitude',
     ];
 
-    public function categories()
+    public function user() {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function orders() {
+        return $this->hasMany(Order::class, 'restaurant_id');
+    }
+
+        public function categories()
     {
         return $this->hasMany(Category::class);
     }
