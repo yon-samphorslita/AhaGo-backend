@@ -14,9 +14,9 @@ class UploadController extends Controller
         ]);
 
         // Store the file in storage/app/uploads
-        $path = $request->file('document')->store('driver-sections');
+        $path = $request->file('document')->store('restaurant', 'minio');
 
         // Return a JSON response
-        return response()->json(['path' => $path], 200);
+        return response()->json(['path' => $path], 201);
     }
 }

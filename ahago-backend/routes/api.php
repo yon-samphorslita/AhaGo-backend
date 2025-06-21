@@ -19,7 +19,7 @@ use App\Http\Controllers\AuthController;
 use \App\Http\Controllers\CustomerProfileController;
 use \App\Http\Controllers\RestaurantProfileController;
 use \App\Http\Controllers\NotificationController;
-
+use \App\Http\Controllers\UploadController;
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -90,6 +90,8 @@ Route::controller(CategoryController::class)->prefix('categories')->group(functi
     Route::delete('/{categId}','deleteCategory');
 });
 
+Route::get('/restaurants/{restaurantId}/categories', [CategoryController::class, 'getCategoriesByRestaurant']);
+
 Route::controller(FoodItemController::class)->prefix('foodItems')->group(function() {
     Route::get('/','getFoodItems');
     Route::post('/','createFoodItem');
@@ -97,6 +99,8 @@ Route::controller(FoodItemController::class)->prefix('foodItems')->group(functio
     Route::patch('/{foodItemId}','updateFoodItem');
     Route::delete('/{foodItemId}','deleteFoodItem');
 });
+
+Route::get('/restaurants/{id}/foodItems', [FoodItemController::class, 'getFoodItemsByRestaurant']);
 
 Route::controller(OrderController::class)->prefix('orders')->group(function() {
     Route::get('/','getOrders');
@@ -126,3 +130,5 @@ Route::controller(NotificationController::class)->prefix('notifications')->group
     Route::get('/','getNotifications');
     Route::get('/driver/{driverId}','getDriverNotifications');
 });
+
+Route::post('/upload', [UploadController::class, 'upload']);

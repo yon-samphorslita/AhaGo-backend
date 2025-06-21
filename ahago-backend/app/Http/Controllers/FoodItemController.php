@@ -89,4 +89,10 @@ class FoodItemController extends Controller
             'message' => "FoodItem #$foodItemId deleted successfully"
         ]);
     }
+
+    public function getFoodItemsByRestaurant($restaurantId)
+    {
+        return FoodItem::where('restaurant_id', $restaurantId)->get();
+    }
+
 }
