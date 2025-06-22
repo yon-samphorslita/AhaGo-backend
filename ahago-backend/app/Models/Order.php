@@ -23,10 +23,14 @@ class Order extends Model
     {
         return $this->belongsTo(RestaurantProfile::class, 'restaurant_id', 'id');
     }
+    public function items()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
 
     public function customer()
     {
-        return $this->belongsTo(CustomerProfile::class, 'customer_id', 'id');
+        return $this->belongsTo(CustomerProfile::class, 'customer_id');
     }
 
     public function driver() {

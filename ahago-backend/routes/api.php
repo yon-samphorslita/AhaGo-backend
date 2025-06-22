@@ -147,3 +147,5 @@ Route::controller(UploadController::class)->prefix('upload')->group(function() {
 });
 Route::apiResource('banners', BannerController::class);
 Route::apiResource('reviews', ReviewController::class);
+Route::post('/orders/details', [OrderController::class, 'getOrderDetails']);
+

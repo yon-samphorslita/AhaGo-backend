@@ -170,5 +170,61 @@ class OrderController extends Controller
 
         return response()->json(['message' => 'Order assigned and driver notified']);
     }
+    // GET /api/orders/{orderId}/details
+public function showOrderDetails($orderId)
+{
+    $order = Order::with([
+        'items.foodItem',
+        'customer',
+        'driver',
+        'restaurant'
+    ])->find($orderId);
+
+    if (!$order) {
+        return response()->json(['message' => 'Order not found'], 404);
+    }
+
+    return response()->json([
+        'order_id' => $order->id,
+        'status' => $order->status,
+        'order_type' => $order->order_type,
+        'payment_status' => $order->payment_status,
+        'remark' => $order->remark,
+        'total_amount' => $order->total_amount,
+
+        'items' => $order->items->map(function ($item) {
+            return [
+                'item_name' => optional($item->foodItem)->name ?? 'Unknown',
+                'quantity' => $item->quantity,
+                'notes' => $item->note ?? '-',
+                'price' => $item->price,
+                'total' => $item->quantity * $item->price
+            ];
+        }),
+
+        'customer' => [
+            'name' => optional($order->customer)->full_name ?? 'N/A',
+            'phone' => optional($order->customer)->phone_number ?? '',
+            'address' => optional($order->customer)->address ?? ''
+        ],
+
+        'driver' => [
+            'name' => optional($order->driver)->full_name ?? 'N/A',
+            'phone' => optional($order->driver)->phone_number ?? '',
+            'vehicle' => optional($order->driver)->vehicle ?? '',
+            'vehicle_number' => optional($order->driver)->vehicle_number ?? '',
+            'image_url' => $order->driver && $order->driver->image
+                ? asset('storage/' . $order->driver->image)
+                : null
+        ],
+
+        'restaurant' => [
+            'name' => optional($order->restaurant)->name ?? '',
+            'address' => optional($order->restaurant)->address ?? '',
+            'phone' => optional($order->restaurant)->phone_number ?? ''
+        ]
+    ]);
+}
+
 
 }
