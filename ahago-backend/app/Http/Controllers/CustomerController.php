@@ -10,7 +10,7 @@ class CustomerController extends Controller
     // GET /api/customers
     public function getCustomers()
     {
-        return CustomerProfile::all();
+        return CustomerProfile::with('user')->get();
     }
 
     // POST /api/customers
@@ -33,7 +33,7 @@ class CustomerController extends Controller
     // GET /api/customers/{customerId}
     public function getCustomer($customerId)
     {
-        $customer = CustomerProfile::find($customerId);
+        $customer = CustomerProfile::with('user')->find($customerId);
 
         if (!$customer) {
             return response()->json(['message' => 'Customer not found'], 404);
