@@ -8,19 +8,59 @@ use App\Enums\OrderType;
 use App\Enums\PaymentStatus;
 use App\Models\Order;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 use App\Models\Notification;
+
 class OrderController extends Controller
 {
     // GET /api/orders
     public function getOrders(Request $request)
     {
-        $query = Order::with(['restaurant', 'customer']);
+        return Order::with('foodItems','restaurant', 'customer')->get();
+        
+      
+//         $query = Order::with(['restaurant', 'customer']);
 
-        if ($request->has('status')) {
-            $query->where('status', $request->status);
-        }
+//         if ($request->has('status')) {
+//             $query->where('status', $request->status);
+//         }
 
-        return response()->json($query->get());
+//         return response()->json($query->get());
+    }
+
+    // GET /api/orders/rest/:restId
+    public function getOrdersByRest($restId)
+    {
+        return Order::with('foodItems')
+         ->where('restaurant_id', $restId)
+         ->get();
+    }
+
+    // GET /api/orders/recent/:restId
+    public function getRecentOrders($restId)
+    {
+        // array of dates from last 7 days
+        $dates = [];
+        $ordersByDay = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = Carbon::today()->subDays($i)->toDateString();
+            $dates[] = $date;
+            $orders = Order::whereDate('created_at', $date)
+            ->where('restaurant_id', $restId)
+            ->get();
+            $ordersByDay[] = $orders->count();
+        };
+        // array of #orders per day from last 7 days
+        // $sevenDaysAgo = now()->subDays(7)->toDateString(); // returns 'YYYY-MM-DD'
+        // $orders = Order::whereDate('created_at', '>=', $sevenDaysAgo)
+        //             ->where('restaurant_id', $restId)
+        //             ->get();
+        
+        return response()->json([
+            'dates' => $dates,
+            'orders' => $ordersByDay
+        ]);
+
     }
 
     // POST /api/orders
@@ -54,7 +94,7 @@ class OrderController extends Controller
     // GET /api/orders/{orderId}
     public function getOrder($orderId)
     {
-        $order = Order::find($orderId);
+        $order = Order::with('foodItems')->find($orderId);
 
         if (!$order) {
             return response()->json(['message' => 'Order not found'], 404);
@@ -76,14 +116,14 @@ class OrderController extends Controller
         }
 
         $validated = $request->validate([
-            'restaurant_id' => 'integer',
-            'customer_id' => 'integer',
-            'driver_id' => 'integer',
-            'status' => ['sometimes', new Enum(OrderStatus::class)],
-            'total_amount' => ['nullable', 'numeric'],
-            'payment_status' => 'nullable|boolean',
-            'remark' => ['string', 'nullable'],
-            'order_type' => ['sometimes', new Enum(OrderType::class)]
+            // 'restaurant_id' => 'integer',
+            // 'customer_id' => 'integer',
+            // 'driver_id' => 'integer',
+            'status' => ['nullable', new Enum(OrderStatus::class)],
+            // 'total_amount' => ['nullable', 'numeric'],
+            'payment_status' => ['nullable', new Enum(PaymentStatus::class)],
+            // 'remark' => ['string', 'nullable'],
+            // 'order_type' => ['required', new Enum(OrderType::class)]
         ]);
 
         $order->update($validated);

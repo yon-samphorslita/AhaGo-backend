@@ -38,7 +38,7 @@ class RestaurantController extends Controller
     // GET /api/rests/{restId}
     public function getRest($restId)
     {
-        $rest = RestaurantProfile::find($restId);
+        $rest = RestaurantProfile::with('user')->find($restId);
 
         if (!$rest) {
             return response()->json(['message' => 'Restaurant not found'], 404);
