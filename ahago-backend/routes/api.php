@@ -66,7 +66,7 @@ Route::middleware('auth:sanctum')->put('/driver/profile', [DriverProfileControll
 Route::controller(OrderController::class)->prefix('orders')->group(function() {
     Route::get('/', 'getOrders');
     Route::post('/', 'createOrder');
-    Route::patch('/{id}', 'updateOrderStatus');
+    Route::patch('/{id}', 'updateOrder');
 });
 
 //// test user by sonit
