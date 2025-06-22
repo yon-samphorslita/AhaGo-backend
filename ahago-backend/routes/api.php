@@ -13,6 +13,7 @@ use \App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderItemController;
 use App\Http\Controllers\RestaurantController;
+use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\AuthController;
@@ -20,6 +21,9 @@ use \App\Http\Controllers\CustomerProfileController;
 use \App\Http\Controllers\RestaurantProfileController;
 use \App\Http\Controllers\NotificationController;
 use \App\Http\Controllers\UploadController;
+use App\Http\Controllers\BannerController;
+use App\Http\Controllers\ReviewController;
+
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -71,8 +75,10 @@ Route::prefix('users')->group(function () {
     Route::get('/{id}', [UserController::class, 'show']);       // Show user by ID
     Route::post('/', [UserController::class, 'store']);         // Create new user
     Route::put('/{id}', [UserController::class, 'update']);     // Update user by ID
+    Route::post('/{id}', [UserController::class, 'update']);    // for _method override (POST acting as PUT)
     Route::delete('/{id}', [UserController::class, 'destroy']); // Delete user by ID
 });
+
 //// test message by sonit
 Route::get('/messages', [MessageController::class, 'index']);       // List messages (filter by sender_id & receiver_id query params)
 Route::post('/messages', [MessageController::class, 'store']);      // Create new message
@@ -99,7 +105,9 @@ Route::get('/restaurants/{restaurantId}/categories', [CategoryController::class,
 Route::controller(FoodItemController::class)->prefix('foodItems')->group(function() {
     Route::get('/','getFoodItems');
     Route::post('/','createFoodItem');
+    Route::get('/top','getTopSellers'); // get 3 most sold items
     Route::get('/{foodItemId}','getFoodItem');
+    Route::get('/rest/{restId}','getFoodItemsByRestId');
     Route::patch('/{foodItemId}','updateFoodItem');
     Route::delete('/{foodItemId}','deleteFoodItem');
 });
@@ -108,6 +116,8 @@ Route::get('/restaurants/{id}/foodItems', [FoodItemController::class, 'getFoodIt
 
 Route::controller(OrderController::class)->prefix('orders')->group(function() {
     Route::get('/','getOrders');
+    Route::get('/rest/{restId}','getOrdersByRest');
+    Route::get('/recent/{restId}','getRecentOrders');    // last 7 days on dashboard
     Route::post('/','createOrder');
     Route::get('/{orderId}','getOrder');
     Route::patch('/{orderId}','updateOrder');
@@ -116,10 +126,11 @@ Route::controller(OrderController::class)->prefix('orders')->group(function() {
 
 Route::controller(OrderItemController::class)->prefix('orderItems')->group(function() {
     Route::get('/','getAllOrderItems');
+    Route::get('/topCategories','getTopCategories');
     Route::post('/','createOrderItem');
-    Route::get('/{orderId}','getOrderItems');
-    Route::patch('/{orderId}','updateOrderItem');
-    Route::delete('/{orderId}','deleteOrderItem');
+    Route::get('/{orderItemId}','getOrderItems');
+    Route::patch('/{orderItemId}','updateOrderItem');
+    Route::delete('/{orderItemId}','deleteOrderItem');
 });
 
 Route::controller(CustomerController::class)->prefix('customers')->group(function() {
@@ -129,6 +140,18 @@ Route::controller(CustomerController::class)->prefix('customers')->group(functio
     Route::patch('/{customerId}','updateCustomer');
     Route::delete('/{customerId}','deleteCustomer');
 });
+
+
+Route::controller(TransactionController::class)->prefix('transactions')->group(function() {
+    Route::get('/','getTransactions');
+    Route::get('/recent/{restId}','getRecentTransactions'); 
+    Route::post('/','createTransaction');
+    Route::get('/{tId}','getTransaction');
+    Route::get('/rest/{rId}','getAllByRestId');
+    // Route::patch('/{customerId}','updateCustomer');
+    Route::delete('/{tId}','deleteTransaction');
+});
+
 
 Route::controller(NotificationController::class)->prefix('notifications')->group(function() {
     Route::get('/','getNotifications');
@@ -140,3 +163,6 @@ Route::post('/upload', [UploadController::class, 'upload']);
 Route::controller(UploadController::class)->prefix('upload')->group(function() {
     Route::post('/', 'upload');
 });
+Route::apiResource('banners', BannerController::class);
+Route::apiResource('reviews', ReviewController::class);
+
