@@ -119,9 +119,28 @@ class FoodItemController extends Controller
         ]);
     }
 
+    // GET /api/restaurants/{restaurantId}/foodItems
     public function getFoodItemsByRestaurant($restaurantId)
     {
         return FoodItem::where('restaurant_id', $restaurantId)->get();
     }
 
+    // NEW: GET /api/foodItems/count
+    public function getCount()
+    {
+        $count = FoodItem::count();
+        return response()->json(['count' => $count]);
+    }
+
+    // NEW: GET /api/foodItems/stock
+    public function getStock()
+    {
+        $inStockCount = FoodItem::where('available', true)->count();
+        $outOfStockCount = FoodItem::where('available', false)->count();
+
+        return response()->json([
+            ['type' => 'inStock', 'total' => $inStockCount],
+            ['type' => 'outStock', 'total' => $outOfStockCount],
+        ]);
+    }
 }

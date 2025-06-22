@@ -9,20 +9,29 @@ use Illuminate\Support\Facades\DB;
 class OrderItemController extends Controller
 {
     // GET /api/orderItems
-    public function getAllOrderItems()
+    public function getAllOrderItem()
     {
-        return OrderItem::with('foodItem')->get();
+//         return OrderItem::with('foodItem')->get();
+
+        // Use singular 'foodItem' relation
+        $orderItems = OrderItem::with('foodItem')->get();
+
+        return response()->json([
+            'message' => 'Order items fetched successfully',
+            'data' => $orderItems,
+        ]);
     }
 
     // GET /api/orderItems/topCategories
-    public function getTopCategories() {
+    public function getTopCategories()
+    {
         // Step 1: Get top-selling food items by total quantity
         $topOrderItems = OrderItem::select('food_item_id', DB::raw('SUM(quantity) as total_quantity'))
-        ->groupBy('food_item_id')
-        ->orderByDesc('total_quantity')
-        ->take(20)
-        ->with('foodItem.category')
-        ->get();
+            ->groupBy('food_item_id')
+            ->orderByDesc('total_quantity')
+            ->take(20)
+            ->with('foodItem.category') // singular here too
+            ->get();
 
         // Group by category name and sum quantities
         $categoryData = [];
@@ -36,13 +45,13 @@ class OrderItemController extends Controller
             }
         }
 
-        // Split into 2 arrays
+        // Split into 2 arrays for response
         $categories = array_keys($categoryData);
-        $totals = array_values($categoryData);
+        $quantities = array_values($categoryData);
 
         return response()->json([
             'categories' => $categories,
-            'quantities' => $totals
+            'quantities' => $quantities,
         ]);
     }
 
@@ -50,32 +59,32 @@ class OrderItemController extends Controller
     public function createOrderItem(Request $request)
     {
         $validated = $request->validate([
-            'food_item_id' => 'integer',
-            'order_id' => 'integer',
-            'quantity' => 'integer',
-            'price' => 'numeric'
+            'food_item_id' => 'required|integer',
+            'order_id' => 'required|integer',
+            'quantity' => 'required|integer',
+            'price' => 'required|numeric',
         ]);
 
         $orderItem = OrderItem::create($validated);
 
         return response()->json([
-            'message' => 'OrderItem created successfully',
-            'data' => $orderItem
+            'message' => 'Order item created successfully',
+            'data' => $orderItem,
         ], 201);
     }
 
     // GET /api/orderItems/{orderItemId}
-    public function getOrderItems($orderItemId)
+    public function getOrderItem($orderItemId)
     {
-        $orderItem = OrderItem::find($orderItemId);
+        $orderItem = OrderItem::with('foodItem')->find($orderItemId);
 
         if (!$orderItem) {
-            return response()->json(['message' => 'Customer not found'], 404);
+            return response()->json(['message' => 'Order item not found'], 404);
         }
 
         return response()->json([
-            'message' => "OrderItem #$orderItemId fetched successfully",
-            'data' => $orderItem
+            'message' => "Order item #$orderItemId fetched successfully",
+            'data' => $orderItem,
         ]);
     }
 
@@ -85,19 +94,19 @@ class OrderItemController extends Controller
         $orderItem = OrderItem::find($orderItemId);
 
         if (!$orderItem) {
-            return response()->json(['message' => 'Customer not found'], 404);
+            return response()->json(['message' => 'Order item not found'], 404);
         }
 
         $validated = $request->validate([
             'quantity' => 'integer',
-            'price' => 'numeric'
+            'price' => 'numeric',
         ]);
 
         $orderItem->update($validated);
 
         return response()->json([
-            'message' => "OrderItem #$orderItemId updated successfully",
-            'data' => $orderItem
+            'message' => "Order item #$orderItemId updated successfully",
+            'data' => $orderItem,
         ]);
     }
 
@@ -107,13 +116,13 @@ class OrderItemController extends Controller
         $orderItem = OrderItem::find($orderItemId);
 
         if (!$orderItem) {
-            return response()->json(['message' => 'OrderItem not found'], 404);
+            return response()->json(['message' => 'Order item not found'], 404);
         }
 
         $orderItem->delete();
 
         return response()->json([
-            'message' => "OrderItem #$orderItemId deleted successfully"
+            'message' => "Order item #$orderItemId deleted successfully",
         ]);
     }
 }
