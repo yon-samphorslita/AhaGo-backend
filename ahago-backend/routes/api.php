@@ -92,6 +92,7 @@ Route::controller(OrderController::class)->prefix('orders')->group(function() {
 
 Route::controller(OrderItemController::class)->prefix('orderItems')->group(function() {
     Route::get('/','getAllOrderItems');
+    Route::get('/topCategories','getTopCategories');
     Route::post('/','createOrderItem');
     Route::get('/{orderItemId}','getOrderItems');
     Route::patch('/{orderItemId}','updateOrderItem');
