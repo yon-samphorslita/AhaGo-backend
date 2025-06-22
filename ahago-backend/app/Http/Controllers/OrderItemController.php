@@ -11,7 +11,7 @@ class OrderItemController extends Controller
     // GET /api/orderItems
     public function getAllOrderItems()
     {
-        return OrderItem::with('foodItems')->get();
+        return OrderItem::with('foodItem')->get();
     }
 
     // GET /api/orderItems/topCategories
@@ -21,14 +21,14 @@ class OrderItemController extends Controller
         ->groupBy('food_item_id')
         ->orderByDesc('total_quantity')
         ->take(20)
-        ->with('foodItems.category')
+        ->with('foodItem.category')
         ->get();
 
         // Group by category name and sum quantities
         $categoryData = [];
 
         foreach ($topOrderItems as $item) {
-            $category = $item->foodItems->category ?? null;
+            $category = $item->foodItem->category ?? null;
 
             if ($category) {
                 $name = $category->name;

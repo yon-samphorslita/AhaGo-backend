@@ -22,6 +22,8 @@ use \App\Http\Controllers\RestaurantProfileController;
 use \App\Http\Controllers\NotificationController;
 use \App\Http\Controllers\UploadController;
 use App\Http\Controllers\BannerController;
+use App\Http\Controllers\FoodItemReviewController;
+use App\Http\Controllers\RestaurantReviewController;
 use App\Http\Controllers\ReviewController;
 
 Route::get('/user', function (Request $request) {
@@ -49,6 +51,7 @@ Route::controller(DriverSectionController::class)->prefix('driver-buttons')->gro
 
 Route::controller(CustomerProfileController::class)->prefix('customers')->group(function() {
     Route::get('/', 'getCustomers');
+    Route::get('/count', 'getCustomersCount');
     Route::post('/', 'createCustomer');
 });
 
@@ -104,8 +107,10 @@ Route::get('/restaurants/{restaurantId}/categories', [CategoryController::class,
 
 Route::controller(FoodItemController::class)->prefix('foodItems')->group(function() {
     Route::get('/','getFoodItems');
+    Route::get('/count','getFoodItemsCount');
     Route::post('/','createFoodItem');
-    Route::get('/top','getTopSellers'); // get 3 most sold items
+    Route::get('/stock','getStockLevel');
+    Route::get('/top','getTopSellers'); // get 10 most sold items
     Route::get('/{foodItemId}','getFoodItem');
     Route::get('/rest/{restId}','getFoodItemsByRestId');
     Route::patch('/{foodItemId}','updateFoodItem');
@@ -116,6 +121,8 @@ Route::get('/restaurants/{id}/foodItems', [FoodItemController::class, 'getFoodIt
 
 Route::controller(OrderController::class)->prefix('orders')->group(function() {
     Route::get('/','getOrders');
+    Route::get('/count','getOrdersCount');
+    Route::get('/orderTypes','getOrdersTypes');
     Route::get('/rest/{restId}','getOrdersByRest');
     Route::get('/recent/{restId}','getRecentOrders');    // last 7 days on dashboard
     Route::post('/','createOrder');
@@ -144,6 +151,7 @@ Route::controller(CustomerController::class)->prefix('customers')->group(functio
 
 Route::controller(TransactionController::class)->prefix('transactions')->group(function() {
     Route::get('/','getTransactions');
+    Route::get('/revenue','getRevenue');
     Route::get('/recent/{restId}','getRecentTransactions'); 
     Route::post('/','createTransaction');
     Route::get('/{tId}','getTransaction');
@@ -156,6 +164,8 @@ Route::controller(TransactionController::class)->prefix('transactions')->group(f
 Route::controller(NotificationController::class)->prefix('notifications')->group(function() {
     Route::get('/','getNotifications');
     Route::get('/driver/{driverId}','getDriverNotifications');
+    Route::get('/rest/{restId}','getOwnerNotifications');
+    Route::post('/','createNotification');
 });
 
 Route::post('/upload', [UploadController::class, 'upload']);
@@ -166,3 +176,18 @@ Route::controller(UploadController::class)->prefix('upload')->group(function() {
 Route::apiResource('banners', BannerController::class);
 Route::apiResource('reviews', ReviewController::class);
 
+Route::controller(RestaurantReviewController::class)->prefix('restaurant_reviews')->group(function() {
+    Route::get('/','getReviews');
+    Route::post('/','createReview');
+    Route::get('/{restId}','getReviewsByRestaurant');
+    Route::patch('/{reviewId}','updateReview');
+    Route::delete('/{reviewId}','deleteReview');
+});
+
+Route::controller(FoodItemReviewController::class)->prefix('foodItem_reviews')->group(function() {
+    Route::get('/','getReviews');
+    Route::post('/','createReview');
+    Route::get('/{food_item_id}','getReviewsByFoodItem');
+    Route::patch('/{reviewId}','updateReview');
+    Route::delete('/{reviewId}','deleteReview');
+});

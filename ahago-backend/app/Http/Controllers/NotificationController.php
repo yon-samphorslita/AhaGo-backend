@@ -26,4 +26,31 @@ class NotificationController extends Controller
             ->get();
     }
 
+    // GET /api/notifications/rest/:restId
+    public function getOwnerNotifications($restId)
+    {
+        return Notification::where('restaurant_id', $restId)
+            ->get();
+    }
+
+    // POST /api/notifications/
+    public function createNotification(Request $request)
+    {
+        $validated = $request->validate([
+            'customer_id' => 'nullable|integer',
+            'restaurant_id' => 'nullable|integer',
+            'driver_id' => 'nullable|integer',
+            'admin_id' => 'nullable|integer',
+            'title' => 'string|required',
+            'message' => 'string'
+        ]);
+
+        $notification = Notification::create($validated);
+
+        return response()->json([
+            'message' => 'Notification created successfully',
+            'data' => $notification
+        ], 201);
+    }
+
 }

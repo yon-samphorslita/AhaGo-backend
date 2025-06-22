@@ -16,6 +16,11 @@ class CustomerProfileController extends Controller
         return response()->json($customers);
     }
 
+    // GET /api/customers/count
+    public function getCustomersCount(){
+        return CustomerProfile::all()->count();
+    }
+
     public function createCustomer(Request $request){
         $validated = $request->validate([
             'user_id' => 'required',

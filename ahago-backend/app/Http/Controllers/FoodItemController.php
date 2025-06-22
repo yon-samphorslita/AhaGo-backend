@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\FoodItem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class FoodItemController extends Controller
 {
@@ -11,6 +12,23 @@ class FoodItemController extends Controller
     public function getFoodItems()
     {
         return FoodItem::all();
+    }
+
+    // GET /api/foodItems/count
+    public function getFoodItemsCount()
+    {
+        return FoodItem::all()->count();
+    }
+
+    // GET /api/foodItems/stock
+    public function getStockLevel()
+    {
+        $counts = DB::table('food_items')
+            ->select('available', DB::raw('count(*) as total'))
+            ->groupBy('available')
+            ->get();
+
+        return $counts;
     }
 
     // POST /api/foodItems
@@ -47,9 +65,9 @@ class FoodItemController extends Controller
         return $foodItem;
     }
 
-    // GET /api/foodItems/topsellers
+    // GET /api/foodItems/top
     public function getTopSellers() {
-        return FoodItem::orderBy('sold', 'desc')->take(3)->get();
+        return FoodItem::orderBy('sold', 'desc')->take(10)->get();
     }
 
     // GET /api/foodItems/rest/{restId}

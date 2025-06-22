@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use Illuminate\Validation\Rules\Enum;
 use App\Enums\OrderStatus;
 use App\Enums\OrderType;
+use App\Enums\PaymentStatus;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\Notification;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
@@ -18,7 +20,7 @@ class OrderController extends Controller
     {
 //         $query = Order::with(['restaurant', 'customer', 'orderItems', 'orderItems.foodItem']);
 
-//         return Order::with('foodItems','restaurant', 'customer')->get();
+        return Order::with('foodItems','restaurant', 'customer')->get();
         
       
 //         $query = Order::with(['restaurant', 'customer']);
@@ -29,6 +31,22 @@ class OrderController extends Controller
 //         }
 
 //         return response()->json($query->get());
+    }
+
+    // GET /api/orders/count
+    public function getOrdersCount()
+    {
+        return Order::all()->count();
+    }
+
+    // GET /api/orders/orderTypes
+    public function getOrdersTypes()
+    {
+        $counts = DB::table('orders')
+            ->select('order_type', DB::raw('count(*) as total'))
+            ->groupBy('order_type')
+            ->get();
+        return $counts;
     }
 
     // GET /api/orders/rest/:restId
@@ -75,7 +93,7 @@ class OrderController extends Controller
             'driver_id' => 'integer',
             'status' => ['nullable', new Enum(OrderStatus::class)],
             'total_amount' => ['nullable', 'numeric'],
-            'payment_status' => 'nullable|boolean',
+            'payment_status' => ['sometimes', new Enum(PaymentStatus::class)],
             'remark' => ['string', 'nullable'],
             'order_type' => ['nullable', new Enum(OrderType::class)]
         ]);
@@ -118,14 +136,14 @@ class OrderController extends Controller
 
         $validated = $request->validate([
 
-            'restaurant_id' => 'integer',
-            'customer_id' => 'integer',
-            'driver_id' => 'integer',
+            // 'restaurant_id' => 'integer',
+            // 'customer_id' => 'integer',
+            // 'driver_id' => 'integer',
             'status' => ['sometimes', new Enum(OrderStatus::class)],
-            'total_amount' => ['nullable', 'numeric'],
-            'payment_status' => 'nullable|boolean',
-            'remark' => ['string', 'nullable'],
-            'order_type' => ['sometimes', new Enum(OrderType::class)],
+            // 'total_amount' => ['nullable', 'numeric'],
+            'payment_status' => ['sometimes', new Enum(PaymentStatus::class)],
+            // 'remark' => ['string', 'nullable'],
+            // 'order_type' => ['sometimes', new Enum(OrderType::class)],
 
         ]);
 
