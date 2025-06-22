@@ -84,4 +84,18 @@ class CategoryController extends Controller
             'message' => "Category #$categId deleted successfully"
         ]);
     }
+
+    // GET /api/restaurants/{restaurantId}/categories
+    public function getCategoriesByRestaurant($restaurantId)
+    {
+        $categories = Category::with('foodItems') // requires a `foodItems()` relationship in Category model
+            ->where('restaurant_id', $restaurantId)
+            ->get();
+
+        return response()->json([
+            'restaurant_id' => $restaurantId,
+            'categories' => $categories
+        ]);
+    }
+
 }
