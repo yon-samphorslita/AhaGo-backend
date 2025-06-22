@@ -20,28 +20,32 @@ class Order extends Model
     ];
 
 
+    
     public function foodItems()
-    {
-        return $this->belongsToMany(FoodItem::class, 'order_items')
-                    ->withPivot('quantity', 'price')
-                    ->withTimestamps();
-    }
+{
+    return $this->belongsToMany(FoodItem::class, 'order_items')
+        ->withPivot('quantity', 'price')
+        ->withTimestamps();
+}
 
-    public function restaurant()
-    {
-        return $this->belongsTo(RestaurantProfile::class, 'restaurant_id', 'id');
-    }
-    public function items()
-    {
-        return $this->hasMany(OrderItem::class);
-    }
+public function restaurant()
+{
+    return $this->belongsTo(RestaurantProfile::class, 'restaurant_id', 'id');
+}
 
-    public function customer()
-    {
-        return $this->belongsTo(CustomerProfile::class, 'customer_id');
-    }
+public function items()
+{
+    return $this->hasMany(OrderItem::class);
+}
 
-    public function driver() {
-        return $this->belongsTo(DriverProfile::class, 'driver_id', 'id');
-    }
+public function customer()
+{
+    return $this->belongsTo(CustomerProfile::class, 'customer_id');
+}
+
+public function driver()
+{
+    return $this->belongsTo(DriverProfile::class, 'driver_id', 'id');
+}
+
 }

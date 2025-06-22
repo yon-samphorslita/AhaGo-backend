@@ -10,10 +10,25 @@ class OrderItem extends Model
         'food_item_id',
         'order_id',
         'quantity',
-        'price'
+        'price',
     ];
 
-    public function foodItems() {
-        return $this->belongsTo(FoodItem::class,'food_item_id');
+    // If you're using created_at and updated_at columns (default)
+    public $timestamps = true;
+
+    /**
+     * Each order item belongs to a food item.
+     */
+    public function foodItem()
+    {
+        return $this->belongsTo(FoodItem::class);
+    }
+
+    /**
+     * Each order item also belongs to an order.
+     */
+    public function order()
+    {
+        return $this->belongsTo(Order::class);
     }
 }
