@@ -21,6 +21,8 @@ use \App\Http\Controllers\RestaurantProfileController;
 use \App\Http\Controllers\NotificationController;
 use \App\Http\Controllers\UploadController;
 use App\Http\Controllers\BannerController;
+use App\Http\Controllers\ReviewController;
+
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -144,3 +146,4 @@ Route::controller(UploadController::class)->prefix('upload')->group(function() {
     Route::post('/', 'upload');
 });
 Route::apiResource('banners', BannerController::class);
+Route::apiResource('reviews', ReviewController::class);
