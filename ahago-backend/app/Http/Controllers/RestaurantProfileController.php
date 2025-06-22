@@ -7,7 +7,7 @@ use App\Models\RestaurantProfile;
 class RestaurantProfileController extends Controller
 {
     public function getRestaurants(){
-    $restaurants = RestaurantProfile::with('user') // load related user
+    $restaurants = RestaurantProfile::with('user', 'categories') // load related user
             ->whereHas('user', function ($query) {
                 $query->where('role', 'restaurant');
             })

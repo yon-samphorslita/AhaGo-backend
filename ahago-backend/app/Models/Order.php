@@ -32,34 +32,12 @@ class Order extends Model
         return $this->belongsTo(RestaurantProfile::class, 'restaurant_id', 'id');
     }
 
-    // public function restaurantProfile()
-    // {
-    // return $this->hasOneThrough(
-    //         User::class,
-    //         RestaurantProfile::class,
-    //         'id',         // restaurant_profiles.id (matches orders.restaurant_id)
-    //         'id',         // users.id (matches restaurant_profiles.user_id)
-    //         'restaurant_id', // orders.restaurant_id
-    //         'user_id'        // restaurant_profiles.user_id
-    //     )->where('role', 'restaurant');
-    // }
-
     public function customer()
     {
-        return $this->belongsTo(User::class, 'customer_id')->where('role', 'customer');
+        return $this->belongsTo(CustomerProfile::class, 'customer_id', 'id');
     }
 
-    public function customerProfile()
-    {
-    // return $this->hasOneThrough(
-    //         User::class,
-    //         CustomerProfile::class,
-    //         'id',         // restaurant_profiles.id (matches orders.restaurant_id)
-    //         'id',         // users.id (matches restaurant_profiles.user_id)
-    //         'customer_id', // orders.customer_id
-    //         'user_id'        // customer_profiles.user_id
-    //     )->where('role', 'customer');
-    return $this->hasOne(CustomerProfile::class, 'user_id', 'customer_id');
+    public function driver() {
+        return $this->belongsTo(DriverProfile::class, 'driver_id', 'id');
     }
-
 }

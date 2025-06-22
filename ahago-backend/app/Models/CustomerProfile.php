@@ -10,6 +10,8 @@ class CustomerProfile extends Model
 {
     use HasFactory;
 
+    protected $with = ['user'];
+
     protected $fillable = [
         'user_id',
         'name',
