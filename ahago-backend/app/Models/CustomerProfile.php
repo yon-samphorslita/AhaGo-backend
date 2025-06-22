@@ -29,4 +29,8 @@ class CustomerProfile extends Model
     public function orders() {
         return $this->hasMany(Order::class, 'customer_id');
     }
+
+    public function restaurantReview(){
+        return $this->belongsToMany(RestaurantReview::class);
+    }
 }

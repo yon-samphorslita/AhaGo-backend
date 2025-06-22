@@ -11,6 +11,8 @@ class OrderItemController extends Controller
     // GET /api/orderItems
     public function getAllOrderItem()
     {
+//         return OrderItem::with('foodItem')->get();
+
         // Use singular 'foodItem' relation
         $orderItems = OrderItem::with('foodItem')->get();
 

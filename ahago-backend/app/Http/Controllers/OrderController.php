@@ -10,6 +10,8 @@ use App\Models\Order;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\Notification;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
@@ -17,19 +19,49 @@ class OrderController extends Controller
     public function getOrders()
     {
         try {
-            $orders = Order::with(['foodItems', 'restaurant', 'customer', 'driver'])->get();
+              $orders = Order::with(['foodItems', 'restaurant', 'customer', 'driver'])->get();
 
-            return response()->json([
-                'message' => 'Orders fetched successfully',
-                'data' => $orders
-            ]);
-        } catch (\Exception $e) {
-            \Log::error('Failed to fetch orders: ' . $e->getMessage());
-            return response()->json([
-                'message' => 'Failed to fetch orders',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+              return response()->json([
+                  'message' => 'Orders fetched successfully',
+                  'data' => $orders
+              ]);
+          } catch (\Exception $e) {
+              \Log::error('Failed to fetch orders: ' . $e->getMessage());
+              return response()->json([
+                  'message' => 'Failed to fetch orders',
+                  'error' => $e->getMessage()
+              ], 500);
+          }
+//         $query = Order::with(['restaurant', 'customer', 'orderItems', 'orderItems.foodItem']);
+//         $query = Order::with(['restaurant', 'customer']);
+//         if ($request->has('status')) {
+//             $query->where('status', $request->status);
+//         }
+//         return response()->json($query->get());
+    }
+
+    // GET /api/orders/count
+    public function getOrdersCount()
+    {
+        return Order::all()->count();
+    }
+
+    // GET /api/orders/orderTypes
+    public function getOrdersTypes()
+    {
+        $counts = DB::table('orders')
+            ->select('order_type', DB::raw('count(*) as total'))
+            ->groupBy('order_type')
+            ->get();
+        return $counts;
+    }
+
+    // GET /api/orders/rest/:restId
+    public function getOrdersByRest($restId)
+    {
+        return Order::with('foodItems')
+         ->where('restaurant_id', $restId)
+         ->get();
     }
 
     // GET /api/orders/{orderId}
@@ -90,6 +122,22 @@ class OrderController extends Controller
         }
     }
 
+    // GET /api/orders/{orderId}
+    public function getOrder($orderId)
+    {
+
+        $order = Order::with(['restaurant', 'customer', 'orderItems', 'orderItems.foodItem'])->find($orderId);
+
+        if (!$order) {
+            return response()->json(['message' => 'Order not found'], 404);
+        }
+
+        return response()->json([
+            'message' => "Order #$orderId fetched successfully",
+            'data' => $order,
+        ]);
+    }
+
     // PATCH /api/orders/{orderId}
     public function updateOrder(Request $request, $orderId)
     {
@@ -121,6 +169,30 @@ class OrderController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+
+//         $validated = $request->validate([
+//             // 'restaurant_id' => 'integer',
+//             // 'customer_id' => 'integer',
+//             // 'driver_id' => 'integer',
+//             'status' => ['sometimes', new Enum(OrderStatus::class)],
+//             // 'total_amount' => ['nullable', 'numeric'],
+//             'payment_status' => ['sometimes', new Enum(PaymentStatus::class)],
+//             // 'remark' => ['string', 'nullable'],
+//             // 'order_type' => ['sometimes', new Enum(OrderType::class)],
+//         ]);
+
+//         $oldStatus = $order->status;
+//         $order->update($validated);
+//         $newStatus = $order->status;
+
+//         if ($oldStatus !== $newStatus && $order->driver_id) {
+//             $this->sendNotificationByStatus($order->driver_id, $order->id, $newStatus);
+//         }
+
+//         return response()->json([
+//             'message' => "Order #$orderId updated successfully",
+//             'data' => $order,
+//         ]);
     }
 
     // DELETE /api/orders/{orderId}
@@ -145,6 +217,7 @@ class OrderController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+
     }
 
     // PATCH /api/orders/{orderId}/status
@@ -185,6 +258,7 @@ class OrderController extends Controller
             'driver_id' => 'required|exists:driver_profiles,id',
         ]);
 
+
         try {
             $order = Order::find($validated['order_id']);
             $order->driver_id = $validated['driver_id'];
@@ -202,6 +276,24 @@ class OrderController extends Controller
             ], 500);
         }
     }
+
+    // Status Notification Dispatcher
+    protected function sendNotificationByStatus($driverId, $orderId, $status)
+    {
+        switch ($status) {
+            case OrderStatus::PENDING->value:
+                $this->notifyDriver($driverId, $orderId, "New Incoming Order", "You have a new incoming order #$orderId. Please check your app for details.");
+                break;
+
+            case OrderStatus::PREPARING->value:
+                $this->notifyDriver($driverId, $orderId, "Order Accepted", "You have successfully accepted order #$orderId. Please proceed with the delivery.");
+                break;
+
+            case OrderStatus::COMPLETED->value:
+                $this->notifyDriver($driverId, $orderId, "Order Completed", "Order #$orderId has been completed successfully. Thank you for your service!");
+                break;
+        }
+    }        
 
     // GET /api/orders/{orderId}/details
     public function showOrderDetails($orderId)
@@ -276,6 +368,18 @@ class OrderController extends Controller
             'title' => "New Incoming Order",
             'message' => "You have a new incoming order #{$orderId}. Please check your app for details.",
         ]);
+
+    }
+
+    // Create Notification Only If It Doesn't Exist
+    protected function notifyDriver($driverId, $orderId, $title, $message)
+    {
+        Notification::create([
+            'driver_id' => $driverId,
+            'title' => $title,
+            'message' => $message,
+        ]);
+        Log::info("Notification sent: [$title] to driver $driverId for order $orderId");
     }
 
     // Helper to notify driver about accepted order
