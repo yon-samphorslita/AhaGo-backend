@@ -122,9 +122,6 @@ class OrderController extends Controller
         $order->status = OrderStatus::PENDING->value;
         $order->save();
 
-        // ❌ DO NOT notify here to prevent duplication
-        // The updateOrder() will notify when status is set
-
         return response()->json(['message' => 'Order assigned successfully']);
     }
 
@@ -145,17 +142,4 @@ protected function sendNotificationByStatus($driverId, $orderId, $status)
             break;
     }
 }
-
-
-    // Create Notification Only If It Doesn't Exist
-protected function notifyDriver($driverId, $orderId, $title, $message)
-{
-    Notification::create([
-        'driver_id' => $driverId,
-        'title' => $title,
-        'message' => $message,
-    ]);
-    Log::info("Notification sent: [$title] to driver $driverId for order $orderId");
-}
-
 }
