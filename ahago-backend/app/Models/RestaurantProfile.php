@@ -30,8 +30,4 @@ class RestaurantProfile extends Model
         return $this->hasMany(Category::class, 'restaurant_id');
     }
 
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
 }
