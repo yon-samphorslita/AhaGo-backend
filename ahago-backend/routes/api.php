@@ -94,6 +94,7 @@ Route::prefix('users')->group(function () {
     Route::put('/{id}', [UserController::class, 'update']);     // Update user by ID
     Route::post('/{id}', [UserController::class, 'update']);    // _method override (POST acting as PUT)
     Route::delete('/{id}', [UserController::class, 'destroy']); // Delete user by ID
+    Route::post('/{id}/verify', [UserController::class, 'verify']);  // Verify user and send email
 });
 
 // Messages
@@ -121,22 +122,17 @@ Route::controller(CategoryController::class)->prefix('categories')->group(functi
 Route::get('/restaurants/{restaurantId}/categories', [CategoryController::class, 'getCategoriesByRestaurant']);
 
 // Food Items
-Route::controller(FoodItemController::class)->prefix('foodItems')->group(function() {
-    Route::get('/','getFoodItems');
-  
-    Route::get('/count','getFoodItemsCount');
-//     Route::get('/count', 'getCount');     // <-- this must be here
-  
-    Route::get('/stock', 'getStock');     // <-- and this
-    Route::post('/','createFoodItem');
-    Route::get('/stock','getStockLevel');
-    Route::get('/top','getTopSellers'); // get 10 most sold items
-    Route::get('/{foodItemId}','getFoodItem');
-    Route::get('/rest/{restId}','getFoodItemsByRestId');
-    Route::patch('/{foodItemId}','updateFoodItem');
-    Route::delete('/{foodItemId}','deleteFoodItem');
+Route::controller(FoodItemController::class)->prefix('foodItems')->group(function () {
+    Route::get('/', 'getFoodItems');
+    Route::post('/', 'createFoodItem');
+    Route::get('/count', 'getFoodItemsCount');
+    Route::get('/stock', 'getStock');
+    Route::get('/top', 'getTopSellers');
+    Route::get('/{foodItemId}', 'getFoodItem');
+    Route::get('/rest/{restId}', 'getFoodItemsByRestId');
+    Route::patch('/{foodItemId}', 'updateFoodItem');
+    Route::delete('/{foodItemId}', 'deleteFoodItem');
 });
-
 
 Route::get('/restaurants/{id}/foodItems', [FoodItemController::class, 'getFoodItemsByRestaurant']);
 
@@ -217,3 +213,5 @@ Route::controller(FoodItemReviewController::class)->prefix('foodItem_reviews')->
     Route::patch('/{reviewId}','updateReview');
     Route::delete('/{reviewId}','deleteReview');
 });
+
+
