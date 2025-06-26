@@ -111,6 +111,7 @@ class DriverProfileController extends Controller
 
         // Validate driver profile fields
         $validatedProfile = $request->validate([
+            'driver_profile.id' => 'nullable|string',
             'driver_profile.first_name' => 'nullable|string',
             'driver_profile.last_name' => 'nullable|string',
             'driver_profile.id_card' => 'nullable|string',

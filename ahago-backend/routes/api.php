@@ -29,10 +29,9 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::prefix('auth')->group(function () {
-
     Route::middleware('auth:sanctum')->get('/currentUser', [AuthController::class, 'currentUser']);
 });
-Route::middleware('auth:sanctum')->post('/driver/photo-upload', [UploadController::class, 'uploadDriverPhoto']);
+Route::middleware('auth:sanctum')->post('/photo-upload', [UploadController::class, 'uploadPhoto']);
 
 Route::post('/signup', [AuthController::class, 'signup']);
 Route::post('/{role}/login', [AuthController::class, 'login']);
@@ -51,6 +50,7 @@ Route::controller(CustomerProfileController::class)->prefix('customers')->group(
     Route::get('/', 'getCustomers');
     Route::post('/', 'createCustomer');
 });
+Route::middleware('auth:sanctum')->put('/customer/profile', [CustomerProfileController::class, 'updateCustomerProfile']);
 
 Route::controller(RestaurantProfileController::class)->prefix('restaurants')->group(function() {
     Route::get('/', 'getRestaurants');
@@ -66,7 +66,7 @@ Route::middleware('auth:sanctum')->put('/driver/profile', [DriverProfileControll
 Route::controller(OrderController::class)->prefix('orders')->group(function() {
     Route::get('/', 'getOrders');
     Route::post('/', 'createOrder');
-    Route::patch('/{id}', 'updateOrderStatus');
+    Route::patch('/{id}', 'updateOrder');
 });
 
 //// test user by sonit
