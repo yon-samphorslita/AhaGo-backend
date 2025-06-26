@@ -10,6 +10,7 @@ class Review extends Model
     use HasFactory;
 
     protected $fillable = [
+    
         'title',
         'description',
         'author',
@@ -17,5 +18,16 @@ class Review extends Model
         'menu',
         'image',
         'rating',
+        'food_item_id'
     ];
+    public function foodItem()
+{
+    return $this->belongsTo(FoodItem::class, 'food_item_id');
+}
+public function customer()
+{
+    return $this->belongsTo(Customer::class, 'customer_id');
+}
+
+
 }

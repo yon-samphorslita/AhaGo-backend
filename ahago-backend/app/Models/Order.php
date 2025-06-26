@@ -20,6 +20,7 @@ class Order extends Model
     ];
 
 
+    
     public function foodItems()
     {
         return $this->belongsToMany(FoodItem::class, 'order_items')
@@ -34,7 +35,7 @@ class Order extends Model
 
     public function customer()
     {
-        return $this->belongsTo(CustomerProfile::class, 'customer_id', 'id');
+        return $this->belongsTo(CustomerProfile::class, 'customer_id');
     }
 
     public function driver() {
@@ -44,4 +45,9 @@ class Order extends Model
     public function orderItems() {
         return $this->hasMany(OrderItem::class);
     }
+
+//     public function items()
+//     {
+//         return $this->hasMany(OrderItem::class);
+//     }
 }

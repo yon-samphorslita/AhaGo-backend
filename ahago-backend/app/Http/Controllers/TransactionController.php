@@ -14,6 +14,12 @@ class TransactionController extends Controller
         return Transaction::with(['restaurant', 'order', 'customer.user'])->get();
     }
 
+    // GET /api/transactions/revenue
+    public function getRevenue()
+    {
+        return Transaction::sum('amount');
+    }
+
     // POST /api/transactions
     public function createTransaction(Request $request)
     {
