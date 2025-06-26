@@ -111,6 +111,7 @@ Route::controller(FoodItemController::class)->prefix('foodItems')->group(functio
     Route::post('/','createFoodItem');
     Route::get('/stock','getStockLevel');
     Route::get('/top','getTopSellers'); // get 10 most sold items
+    Route::get('/top/{restId}','getTopSellersOfRest'); // get 10 most sold items
     Route::get('/{foodItemId}','getFoodItem');
     Route::get('/rest/{restId}','getFoodItemsByRestId');
     Route::patch('/{foodItemId}','updateFoodItem');
@@ -133,6 +134,7 @@ Route::controller(OrderController::class)->prefix('orders')->group(function() {
 
 Route::controller(OrderItemController::class)->prefix('orderItems')->group(function() {
     Route::get('/','getAllOrderItems');
+    Route::get('/{restId}','getAllOrderItemsById');
     Route::get('/topCategories','getTopCategories');
     Route::post('/','createOrderItem');
     Route::get('/{orderItemId}','getOrderItems');

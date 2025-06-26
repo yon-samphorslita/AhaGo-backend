@@ -14,6 +14,16 @@ class OrderItemController extends Controller
         return OrderItem::with('foodItem')->get();
     }
 
+    // GET /api/orderItems/:restId
+    public function getAllOrderItemsById($restId)
+    {
+        $orders = OrderItem::with('foodItem', 'order')->get();
+
+        $ordersById = $orders->where('foodItem.restaurant_id', $restId);
+
+        return $ordersById;
+    }
+
     // GET /api/orderItems/topCategories
     public function getTopCategories() {
         // Step 1: Get top-selling food items by total quantity

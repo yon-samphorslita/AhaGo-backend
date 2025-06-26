@@ -70,6 +70,12 @@ class FoodItemController extends Controller
         return FoodItem::orderBy('sold', 'desc')->take(10)->get();
     }
 
+    // GET /api/foodItems/top/:restId
+    public function getTopSellersOfRest($restId) {
+        $items = FoodItem::where('restaurant_id', $restId)->orderBy('sold', 'desc')->get();
+        return $items;
+    }
+
     // GET /api/foodItems/rest/{restId}
     public function getFoodItemsByRestId($restId)
     {
