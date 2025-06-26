@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('driver_id')->nullable()->constrained('driver_profiles')->onDelete('cascade');
             $table->enum('status', ['pending', 'preparing', 'delivering', 'completed', 'cancelled'])->default('pending')->nullable();
             $table->decimal('total_amount', 6, 2)->nullable();
-            $table->boolean('payment_status',)->nullable()->default(false);
+            $table->enum('payment_status', ['paid', 'unpaid'])->default('unpaid')->nullable();
             $table->string('remark')->nullable();
             $table->enum('order_type', ['dine-in', 'delivery'])->nullable();
             $table->timestamps();

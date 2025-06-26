@@ -85,6 +85,7 @@ Route::controller(OrderController::class)->prefix('orders')->group(function() {
     Route::post('/assign', 'assignOrderToDriver');             // Assign driver to order
     Route::get('/{orderId}/details', 'showOrderDetails');      // Detailed order info
 });
+// Route::middleware('auth:sanctum')->post('/orders', [OrderController::class, 'createOrder']);
 
 // User management
 Route::prefix('users')->group(function () {
@@ -110,6 +111,7 @@ Route::controller(RestaurantController::class)->prefix('rests')->group(function(
     Route::patch('/{restId}','updateRest');
     Route::delete('/{restId}','deleteRest');
 });
+Route::patch('/restaurants/{id}', [RestaurantProfileController::class, 'updateRestaurant']);
 
 // Categories
 Route::controller(CategoryController::class)->prefix('categories')->group(function() {

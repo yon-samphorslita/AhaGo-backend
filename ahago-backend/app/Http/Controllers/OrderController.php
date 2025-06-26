@@ -19,7 +19,7 @@ class OrderController extends Controller
     public function getOrders()
     {
         try {
-            $orders = Order::with(['foodItems', 'restaurant', 'customer', 'driver'])->get();
+            $orders = Order::with(['orderItems.foodItem', 'restaurant.user', 'customer', 'driver', ])->get();
             return response()->json([
                 'message' => 'Orders fetched successfully',
                 'data' => $orders
@@ -87,26 +87,52 @@ class OrderController extends Controller
     // }
 
     // POST /api/orders
-    public function createOrder(Request $request)
-    {
-        $validated = $request->validate([
-            'restaurant_id' => 'required|integer|exists:restaurant_profiles,id',
-            'customer_id' => 'required|integer|exists:customer_profiles,id',
-            'driver_id' => 'nullable|integer|exists:driver_profiles,id',
-            'status' => ['nullable', new Enum(OrderStatus::class)],
-            'total_amount' => ['nullable', 'numeric'],
-            'payment_status' => ['nullable', new Enum(PaymentStatus::class)],
-            'remark' => ['nullable', 'string'],
-            'order_type' => ['nullable', new Enum(OrderType::class)]
-        ]);
+public function createOrder(Request $request)
+{
+    $validated = $request->validate([
+        'restaurant_id' => 'required|integer|exists:restaurant_profiles,id',
+        'customer_id' => 'required|integer|exists:customer_profiles,id',
+        'driver_id' => 'nullable|integer|exists:driver_profiles,id',
+        'status' => ['nullable', new Enum(OrderStatus::class)],
+        'total_amount' => ['nullable', 'numeric'],
+        'payment_status' => ['nullable', new Enum(PaymentStatus::class)],
+        'remark' => ['nullable', 'string'],
+        'order_type' => ['nullable', new Enum(OrderType::class)],
+        'items' => ['required', 'array'],
+        'items.*.food_item_id' => 'required|integer|exists:food_items,id',
+        'items.*.quantity' => 'required|integer|min:1',
+        'items.*.price' => 'required|numeric|min:0',
+    ]);
 
-        $order = Order::create($validated);
+    DB::beginTransaction();
+
+    try {
+        $orderData = $validated;
+        unset($orderData['items']);
+
+        $order = Order::create($orderData);
+
+        foreach ($validated['items'] as $item) {
+            $order->orderItems()->create($item);
+        }
+
+        DB::commit();
 
         return response()->json([
             'message' => 'Order created successfully',
-            'data' => $order,
+            'data' => $order->load('orderItems.foodItem'),
         ], 201);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Failed to create order: ' . $e->getMessage());
+        return response()->json([
+            'message' => 'Failed to create order',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
+
 
     // GET /api/orders/{orderId}
     public function getOrder($orderId)
@@ -134,15 +160,16 @@ class OrderController extends Controller
             }
 
         $validated = $request->validate([
-            'restaurant_id' => 'integer',
-            'customer_id' => 'integer',
-            'driver_id' => 'integer',
+            'restaurant_id' => 'nullable|integer',
+            'customer_id' => 'nullable|integer',
+            'driver_id' => 'nullable|integer',
             'status' => ['sometimes', new Enum(OrderStatus::class)],
             'total_amount' => ['nullable', 'numeric'],
-            'payment_status' => 'nullable|boolean',
-            'remark' => ['string', 'nullable'],
-            'order_type' => ['sometimes', new Enum(OrderType::class)],
+            'payment_status' => ['nullable', new Enum(PaymentStatus::class)],
+            'remark' => ['nullable', 'string'],
+            'order_type' => ['nullable', new Enum(OrderType::class)],
         ]);
+
 
         $oldStatus = $order->status;
         $order->update($validated);
@@ -240,7 +267,7 @@ class OrderController extends Controller
     {
         try {
             $order = Order::with([
-                'items.foodItem',
+                'orderItems.foodItem',
                 'customer',
                 'driver',
                 'restaurant'
@@ -308,5 +335,30 @@ class OrderController extends Controller
             'title' => "New Incoming Order",
             'message' => "You have a new incoming order #{$orderId}. Please check your app for details.",
         ]);
+    }
+    protected function sendNotificationByStatus($driverId, $orderId, $status)
+    {
+        switch ($status) {
+            case OrderStatus::PENDING->value:
+                $this->notifyDriver($driverId, $orderId, "New Incoming Order", "You have a new incoming order #$orderId. Please check your app for details.");
+                break;
+
+            case OrderStatus::PREPARING->value:
+                $this->notifyDriver($driverId, $orderId, "Order Accepted", "You have successfully accepted order #$orderId. Please proceed with the delivery.");
+                break;
+
+            case OrderStatus::COMPLETED->value:
+                $this->notifyDriver($driverId, $orderId, "Order Completed", "Order #$orderId has been completed successfully. Thank you for your service!");
+                break;
+        }
+    }
+    protected function notifyDriver($driverId, $orderId, $title, $message)
+    {
+        Notification::create([
+            'driver_id' => $driverId,
+            'title' => $title,
+            'message' => $message,
+        ]);
+        Log::info("Notification sent: [$title] to driver $driverId for order $orderId");
     }
 }
