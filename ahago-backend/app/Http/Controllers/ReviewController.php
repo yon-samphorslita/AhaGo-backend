@@ -5,44 +5,42 @@ namespace App\Http\Controllers;
 use App\Models\Review;
 use Illuminate\Http\Request;
 
-class ReviewController extends Controller
+class FoodItemReviewController extends Controller
 {
-    // List all reviews
-    public function index()
+    // Get all reviews
+    public function getReviews()
     {
-        // Add 'image_url' accessor for full image path
-        $reviews = Review::all()->map(function ($review) {
+        $reviews = Review::with('customer')->get()->map(function ($review) {
             $review->image_url = $review->image
                 ? url('storage/' . $review->image)
                 : null;
             return $review;
         });
 
-        return response()->json($reviews);
+        return response()->json(['data' => $reviews]);
     }
 
-    // Store a new review with image upload
-    public function store(Request $request)
+    // Create a new review
+    public function createReview(Request $request)
     {
         $validatedData = $request->validate([
-            'title'       => 'required|string|max:255',
-            'description' => 'required|string',
-            'author'      => 'required|string|max:255',
-            'category'    => 'required|string|max:100',
-            'menu'        => 'required|string|max:100',
-            'rating'      => 'required|integer|min:1|max:5',
-            'image'       => 'nullable|image|max:2048', // max 2MB
+            'title'        => 'required|string|max:255',
+            'description'  => 'required|string',
+            'author'       => 'required|string|max:255',
+            'category'     => 'required|string|max:100',
+            'menu'         => 'required|string|max:100',
+            'rating'       => 'required|integer|min:1|max:5',
+            'food_item_id' => 'required|integer|exists:food_items,id',
+            'image'        => 'nullable|image|max:2048',
         ]);
 
         if ($request->hasFile('image')) {
-            // Store image in 'public/reviews' folder
             $path = $request->file('image')->store('reviews', 'public');
-            $validatedData['image'] = $path; // Save path relative to storage/app/public
+            $validatedData['image'] = $path;
         }
 
         $review = Review::create($validatedData);
 
-        // Append full image URL to response
         $review->image_url = $review->image
             ? url('storage/' . $review->image)
             : null;
@@ -50,38 +48,43 @@ class ReviewController extends Controller
         return response()->json($review, 201);
     }
 
-    // Show one review
-    public function show($id)
+    // Get reviews by food item ID
+    public function getReviewsByFoodItem($food_item_id)
     {
-        $review = Review::findOrFail($id);
-        $review->image_url = $review->image
-            ? url('storage/' . $review->image)
-            : null;
+        $reviews = Review::where('food_item_id', $food_item_id)
+            ->with('customer')  // eager load related customer info, adjust relation name as needed
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($review) {
+                $review->image_url = $review->image
+                    ? url('storage/' . $review->image)
+                    : null;
+                return $review;
+            });
 
-        return response()->json($review);
+        return response()->json(['data' => $reviews]);
     }
 
-    // Update a review (optional: update image too)
-    public function update(Request $request, $id)
+    // Update a review by ID
+    public function updateReview(Request $request, $reviewId)
     {
-        $review = Review::findOrFail($id);
+        $review = Review::findOrFail($reviewId);
 
         $validatedData = $request->validate([
-            'title'       => 'sometimes|required|string|max:255',
-            'description' => 'sometimes|required|string',
-            'author'      => 'sometimes|required|string|max:255',
-            'category'    => 'sometimes|required|string|max:100',
-            'menu'        => 'sometimes|required|string|max:100',
-            'rating'      => 'sometimes|required|integer|min:1|max:5',
-            'image'       => 'nullable|image|max:2048',
+            'title'        => 'sometimes|required|string|max:255',
+            'description'  => 'sometimes|required|string',
+            'author'       => 'sometimes|required|string|max:255',
+            'category'     => 'sometimes|required|string|max:100',
+            'menu'         => 'sometimes|required|string|max:100',
+            'rating'       => 'sometimes|required|integer|min:1|max:5',
+            'image'        => 'nullable|image|max:2048',
+            'food_item_id' => 'sometimes|required|integer|exists:food_items,id',
         ]);
 
         if ($request->hasFile('image')) {
-            // Delete old image if exists
             if ($review->image && \Storage::disk('public')->exists($review->image)) {
                 \Storage::disk('public')->delete($review->image);
             }
-
             $path = $request->file('image')->store('reviews', 'public');
             $validatedData['image'] = $path;
         }
@@ -95,10 +98,10 @@ class ReviewController extends Controller
         return response()->json($review);
     }
 
-    // Delete a review
-    public function destroy($id)
+    // Delete a review by ID
+    public function deleteReview($reviewId)
     {
-        $review = Review::findOrFail($id);
+        $review = Review::findOrFail($reviewId);
 
         if ($review->image && \Storage::disk('public')->exists($review->image)) {
             \Storage::disk('public')->delete($review->image);

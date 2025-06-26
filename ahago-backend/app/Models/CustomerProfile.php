@@ -1,11 +1,11 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\User;
 use App\Models\Order;
+
 class CustomerProfile extends Model
 {
     use HasFactory;
@@ -14,13 +14,13 @@ class CustomerProfile extends Model
 
     protected $fillable = [
         'user_id',
-        'name',
+        'first_name',
+        'last_name',
         'gender',
         'city',
         'latitude',
         'longitude',
     ];
-
 
     public function user(){
         return $this->belongsTo(User::class, 'user_id');
@@ -28,7 +28,6 @@ class CustomerProfile extends Model
 
     public function orders() {
         return $this->hasMany(Order::class, 'customer_id');
-
     }
 
     public function restaurantReview(){

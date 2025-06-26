@@ -49,6 +49,8 @@ class AuthController extends Controller
 
                 case 'customer':
                     $user->customerProfile()->create([
+                        'first_name' => $request->first_name,
+                        'last_name' => $request->last_name,
                         'gender' => $request->gender ?? null,
                         'city' => $request->city ?? null,
                         'latitude' => $request->latitude ?? null,
@@ -135,7 +137,6 @@ class AuthController extends Controller
         $role = $user->role . 'Profile';
 
         if (!method_exists($user, $role)) {
-            // Optional: fallback if relation not found
             return response()->json([
                 'message' => 'User profile relation not found',
                 'user' => $user,

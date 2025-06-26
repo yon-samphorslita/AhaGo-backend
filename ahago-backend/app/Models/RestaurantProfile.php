@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 class RestaurantProfile extends Model
 {
     use HasFactory;
@@ -25,8 +26,7 @@ class RestaurantProfile extends Model
         return $this->hasMany(Order::class, 'restaurant_id');
     }
 
-        public function categories()
-    {
+    public function categories() {
         return $this->hasMany(Category::class, 'restaurant_id');
     }
 }

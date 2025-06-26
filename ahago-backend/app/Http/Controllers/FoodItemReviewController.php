@@ -10,7 +10,7 @@ class FoodItemReviewController extends Controller
     // GET /api/foodItem_reviews
     public function getReviews()
     {
-        return FoodItemReview::all(); 
+        return FoodItemReview::all();
     }
 
     // POST /api/foodItem_reviews
@@ -36,20 +36,20 @@ class FoodItemReviewController extends Controller
     {
         $reviews = FoodItemReview::where('food_item_id', $food_item_id)->with('customer')->get();
 
-        if (!$reviews) {
-            return response()->json(['message' => 'FoodItemReview not found'], 404);
+        if ($reviews->isEmpty()) {
+            return response()->json(['message' => 'No reviews found for this food item'], 404);
         }
 
-        return $reviews;
+        return response()->json($reviews);
     }
 
-    // PATCH /api/foodItem_reviews/{adminId}
+    // PATCH /api/foodItem_reviews/{reviewId}
     public function updateReview(Request $request, $reviewId)
     {
         $review = FoodItemReview::find($reviewId);
 
         if (!$review) {
-            return response()->json(['message' => 'RestReview not found'], 404);
+            return response()->json(['message' => 'FoodItemReview not found'], 404);
         }
 
         $validated = $request->validate([
@@ -73,7 +73,7 @@ class FoodItemReviewController extends Controller
         $review = FoodItemReview::find($reviewId);
 
         if (!$review) {
-            return response()->json(['message' => 'Admin not found'], 404);
+            return response()->json(['message' => 'FoodItemReview not found'], 404);
         }
 
         $review->delete();

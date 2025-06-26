@@ -7,15 +7,19 @@ use Illuminate\Database\Eloquent\Model;
 class FoodItem extends Model
 {
     protected $fillable = [
-        'restaurant_id',
-        'category_id',
-        'name',
-        'price',
-        'description',
-        'available',
-        'discount',
-        'img_url',
-    ];
+    'restaurant_id',
+    'category_id',
+    'name',
+    'price',
+    'description',
+    'available',
+    'discount',
+    'img_url',
+    'rating',
+    'sold',
+    'favourite',
+];
+
 
     public function category() 
     {
