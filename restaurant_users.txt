@@ -1,0 +1,65 @@
+[
+  {
+    "name": "The Noodle Bar",
+    "email": "contact@thenoodlebar.com",
+    "address": "88 Noodle St, Phnom Penh",
+    "phone_number": "011111111",
+    "img_src": "http://localhost:9000/ahago/restaurant/6yWco6zSZMt5xVlYemSsl56ZJtzB9aF8fUjOy6kN.jpg",
+    "role": "restaurant",
+    "is_verified": 1
+  },
+  {
+    "name": "Bamboo Garden",
+    "email": "hello@bamboogarden.com",
+    "address": "22 Bamboo Blvd, Phnom Penh",
+    "phone_number": "014444444",
+    "img_src": "http://localhost:9000/ahago/restaurant/HN2b9COo67csUwYzyZU6vxHdFmpQhfy7mzHlWVlN.jpg",
+    "role": "restaurant",
+    "is_verified": 1
+  },
+  {
+    "name": "Urban Pizza",
+    "email": "order@urbanpizza.com",
+    "address": "101 Urban Way, Phnom Penh",
+    "phone_number": "0188888888",
+    "img_src": "http://localhost:9000/ahago/restaurant/VRpRhjoOCQvfJGKQEueZUfnMPm4zJmUXms0arwI0.jpg",
+    "role": "restaurant",
+    "is_verified": 1
+  },
+  {
+    "name": "Pho 24",
+    "email": "hello@pho24.com",
+    "address": "24 Pho Blvd, Phnom Penh",
+    "phone_number": "0199999999",
+    "img_src": "http://localhost:9000/ahago/restaurant/tWIiQHoNxnAXS4AwmknOCerOzFCoFPODE6BR99hV.jpg",
+    "role": "restaurant",
+    "is_verified": 1
+  },
+  {
+    "name": "Angkor BBQ",
+    "email": "info@angkorbbq.com",
+    "address": "12 BBQ St, Phnom Penh",
+    "phone_number": "012222222",
+    "img_src": "http://localhost:9000/ahago/restaurant/HhRh6SmydiFiXqgyfSuIbcaCdXTsyeiYYBGybIqC.jpg",
+    "role": "restaurant",
+    "is_verified": 1
+  },
+  {
+    "name": "Bayon Noodle House",
+    "email": "contact@bayonnoodle.com",
+    "address": "34 Bayon Rd, Phnom Penh",
+    "phone_number": "013333333",
+    "img_src": "http://localhost:9000/ahago/restaurant/gvSEZ13FrV6Q8Q3PqegOWA4Ekrra1xp22UbrzGKq.jpg",
+    "role": "restaurant",
+    "is_verified": 1
+  },
+  {
+    "name": "Sovanna Restaurant",
+    "email": "hello@sovanna.com",
+    "address": "56 Sovanna St, Phnom Penh",
+    "phone_number": "014444445",
+    "img_src": "http://localhost:9000/ahago/restaurant/zH4sfm5srs6nJQzWYcs3m3WoYvXUsHeqoLae2oYu.jpg",
+    "role": "restaurant",
+    "is_verified": 1
+  }
+]
