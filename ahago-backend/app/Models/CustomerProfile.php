@@ -14,8 +14,8 @@ class CustomerProfile extends Model
 
     protected $fillable = [
         'user_id',
-        'firstname',   // added
-        'lastname',    // added
+        'first_name',
+        'last_name',
         'gender',
         'city',
         'latitude',

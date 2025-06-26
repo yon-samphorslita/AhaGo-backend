@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\Enum;
+use Carbon\Carbon;
 
 class OrderController extends Controller
 {
@@ -56,34 +57,34 @@ class OrderController extends Controller
     }
 
     // ✅ FIXED: GET /api/orders/{orderId}
-    public function getOrder($orderId)
-    {
-        try {
-            $order = Order::with([
-                'foodItems',
-                'restaurant',
-                'customer',
-                'driver',
-                'orderItems',
-                'orderItems.foodItem'
-            ])->find($orderId);
+    // public function getOrder($orderId)
+    // {
+    //     try {
+    //         $order = Order::with([
+    //             'foodItems',
+    //             'restaurant',
+    //             'customer',
+    //             'driver',
+    //             'orderItems',
+    //             'orderItems.foodItem'
+    //         ])->find($orderId);
 
-            if (!$order) {
-                return response()->json(['message' => 'Order not found'], 404);
-            }
+    //         if (!$order) {
+    //             return response()->json(['message' => 'Order not found'], 404);
+    //         }
 
-            return response()->json([
-                'message' => "Order #$orderId fetched successfully",
-                'data' => $order
-            ]);
-        } catch (\Exception $e) {
-            Log::error("Error fetching order #$orderId: " . $e->getMessage());
-            return response()->json([
-                'message' => 'Error fetching order',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
+    //         return response()->json([
+    //             'message' => "Order #$orderId fetched successfully",
+    //             'data' => $order
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         Log::error("Error fetching order #$orderId: " . $e->getMessage());
+    //         return response()->json([
+    //             'message' => 'Error fetching order',
+    //             'error' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
 
     // POST /api/orders
     public function createOrder(Request $request)
@@ -99,24 +100,27 @@ class OrderController extends Controller
             'order_type' => ['nullable', new Enum(OrderType::class)]
         ]);
 
-        try {
-            $order = Order::create($validated);
+        $order = Order::create($validated);
 
-            if (!empty($order->driver_id) && $order->status === OrderStatus::PENDING->value) {
-                $this->notifyDriverIncomingOrder($order->driver_id, $order->id);
-            }
+        return response()->json([
+            'message' => 'Order created successfully',
+            'data' => $order,
+        ], 201);
+    }
 
-            return response()->json([
-                'message' => 'Order created successfully',
-                'data' => $order
-            ], 201);
-        } catch (\Exception $e) {
-            Log::error('Error creating order: ' . $e->getMessage());
-            return response()->json([
-                'message' => 'Failed to create order',
-                'error' => $e->getMessage()
-            ], 500);
+    // GET /api/orders/{orderId}
+    public function getOrder($orderId)
+    {
+        $order = Order::with(['restaurant', 'customer', 'orderItems', 'orderItems.foodItem'])->find($orderId);
+
+        if (!$order) {
+            return response()->json(['message' => 'Order not found'], 404);
         }
+
+        return response()->json([
+            'message' => "Order #$orderId fetched successfully",
+            'data' => $order,
+        ]);
     }
 
     // PATCH /api/orders/{orderId}
@@ -129,15 +133,24 @@ class OrderController extends Controller
                 return response()->json(['message' => 'Order not found'], 404);
             }
 
-            $validated = $request->validate([
-                'status' => ['nullable', new Enum(OrderStatus::class)],
-                'payment_status' => ['nullable', new Enum(PaymentStatus::class)],
-                'remark' => ['nullable', 'string'],
-                'order_type' => ['nullable', new Enum(OrderType::class)],
-                'total_amount' => ['nullable', 'numeric'],
-            ]);
+        $validated = $request->validate([
+            'restaurant_id' => 'integer',
+            'customer_id' => 'integer',
+            'driver_id' => 'integer',
+            'status' => ['sometimes', new Enum(OrderStatus::class)],
+            'total_amount' => ['nullable', 'numeric'],
+            'payment_status' => 'nullable|boolean',
+            'remark' => ['string', 'nullable'],
+            'order_type' => ['sometimes', new Enum(OrderType::class)],
+        ]);
 
-            $order->update($validated);
+        $oldStatus = $order->status;
+        $order->update($validated);
+        $newStatus = $order->status;
+
+        if ($oldStatus !== $newStatus && $order->driver_id) {
+            $this->sendNotificationByStatus($order->driver_id, $order->id, $newStatus);
+        }
 
             return response()->json([
                 'message' => "Order #$orderId updated successfully",
@@ -214,22 +227,12 @@ class OrderController extends Controller
             'driver_id' => 'required|exists:driver_profiles,id',
         ]);
 
-        try {
-            $order = Order::find($validated['order_id']);
-            $order->driver_id = $validated['driver_id'];
-            $order->status = OrderStatus::PENDING->value;
-            $order->save();
+        $order = Order::find($validated['order_id']);
+        $order->driver_id = $validated['driver_id'];
+        $order->status = OrderStatus::PENDING->value;
+        $order->save();
 
-            $this->notifyDriverIncomingOrder($validated['driver_id'], $validated['order_id']);
-
-            return response()->json(['message' => 'Order assigned and driver notified']);
-        } catch (\Exception $e) {
-            Log::error("Error assigning order #{$validated['order_id']} to driver #{$validated['driver_id']}: " . $e->getMessage());
-            return response()->json([
-                'message' => 'Failed to assign order to driver',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        return response()->json(['message' => 'Order assigned successfully']);
     }
 
     // GET /api/orders/{orderId}/details
@@ -304,27 +307,6 @@ class OrderController extends Controller
             'driver_id' => $driverId,
             'title' => "New Incoming Order",
             'message' => "You have a new incoming order #{$orderId}. Please check your app for details.",
-        ]);
-    }
-
-    // 🔔 Generic driver notification
-    protected function notifyDriver($driverId, $orderId, $title, $message)
-    {
-        Notification::create([
-            'driver_id' => $driverId,
-            'title' => $title,
-            'message' => $message,
-        ]);
-        Log::info("Notification sent: [$title] to driver $driverId for order $orderId");
-    }
-
-    // 🔔 Notify driver about accepted order
-    protected function notifyDriverAcceptedOrder($driverId, $orderId)
-    {
-        Notification::create([
-            'driver_id' => $driverId,
-            'title' => "Order Accepted",
-            'message' => "You have successfully accepted order #{$orderId}. Please proceed with the delivery.",
         ]);
     }
 }

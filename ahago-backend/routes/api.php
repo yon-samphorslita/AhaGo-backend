@@ -34,8 +34,7 @@ Route::get('/user', function (Request $request) {
 Route::prefix('auth')->group(function () {
     Route::middleware('auth:sanctum')->get('/currentUser', [AuthController::class, 'currentUser']);
 });
-
-Route::middleware('auth:sanctum')->post('/driver/photo-upload', [UploadController::class, 'uploadDriverPhoto']);
+Route::middleware('auth:sanctum')->post('/photo-upload', [UploadController::class, 'uploadPhoto']);
 
 Route::post('/signup', [AuthController::class, 'signup']);
 Route::post('/{role}/login', [AuthController::class, 'login']);
@@ -58,6 +57,7 @@ Route::controller(CustomerProfileController::class)->prefix('customerProfiles')-
     Route::get('/count', 'getCustomersCount');
     Route::post('/', 'createCustomer');
 });
+Route::middleware('auth:sanctum')->put('/customer/profile', [CustomerProfileController::class, 'updateCustomerProfile']);
 
 // Restaurant Profiles
 Route::controller(RestaurantProfileController::class)->prefix('restaurants')->group(function() {
@@ -122,16 +122,17 @@ Route::controller(CategoryController::class)->prefix('categories')->group(functi
 Route::get('/restaurants/{restaurantId}/categories', [CategoryController::class, 'getCategoriesByRestaurant']);
 
 // Food Items
-Route::controller(FoodItemController::class)->prefix('foodItems')->group(function () {
-    Route::get('/', 'getFoodItems');
-    Route::post('/', 'createFoodItem');
-    Route::get('/count', 'getFoodItemsCount');
-    Route::get('/stock', 'getStock');
-    Route::get('/top', 'getTopSellers');
-    Route::get('/{foodItemId}', 'getFoodItem');
-    Route::get('/rest/{restId}', 'getFoodItemsByRestId');
-    Route::patch('/{foodItemId}', 'updateFoodItem');
-    Route::delete('/{foodItemId}', 'deleteFoodItem');
+Route::controller(FoodItemController::class)->prefix('foodItems')->group(function() {
+    Route::get('/','getFoodItems');
+    Route::get('/count','getFoodItemsCount');
+    Route::post('/','createFoodItem');
+    Route::get('/stock','getStockLevel');
+    Route::get('/top','getTopSellers'); // get 10 most sold items
+    Route::get('/top/{restId}','getTopSellersOfRest'); // get 10 most sold items
+    Route::get('/{foodItemId}','getFoodItem');
+    Route::get('/rest/{restId}','getFoodItemsByRestId');
+    Route::patch('/{foodItemId}','updateFoodItem');
+    Route::delete('/{foodItemId}','deleteFoodItem');
 });
 
 Route::get('/restaurants/{id}/foodItems', [FoodItemController::class, 'getFoodItemsByRestaurant']);
@@ -149,14 +150,14 @@ Route::controller(OrderController::class)->prefix('orders')->group(function() {
 });
 
 // Order Items
-Route::controller(OrderItemController::class)->prefix('orderItems')->group(function () {
-    Route::get('/', 'getAllOrderItem');
-    Route::get('/topCategories', 'getTopCategories');
-    Route::post('/', 'createOrderItem');
+Route::controller(OrderItemController::class)->prefix('orderItems')->group(function() {
+    Route::get('/','getAllOrderItems');
+    Route::get('/{restId}','getAllOrderItemsById');
+    Route::get('/topCategories','getTopCategories');
+    Route::post('/','createOrderItem');
     Route::get('/{orderItemId}', 'getOrderItem');  // singular name
-    Route::patch('/{orderItemId}', 'updateOrderItem');
-    Route::delete('/{orderItemId}', 'deleteOrderItem');
-
+    Route::patch('/{orderItemId}','updateOrderItem');
+    Route::delete('/{orderItemId}','deleteOrderItem');
 });
 
 
