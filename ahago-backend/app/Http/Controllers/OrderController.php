@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\Enum;
 use Carbon\Carbon;
-use App\Models\Notification;
 
 class OrderController extends Controller
 {
@@ -58,34 +57,34 @@ class OrderController extends Controller
     }
 
     // ✅ FIXED: GET /api/orders/{orderId}
-    public function getOrder($orderId)
-    {
-        try {
-            $order = Order::with([
-                'foodItems',
-                'restaurant',
-                'customer',
-                'driver',
-                'orderItems',
-                'orderItems.foodItem'
-            ])->find($orderId);
+    // public function getOrder($orderId)
+    // {
+    //     try {
+    //         $order = Order::with([
+    //             'foodItems',
+    //             'restaurant',
+    //             'customer',
+    //             'driver',
+    //             'orderItems',
+    //             'orderItems.foodItem'
+    //         ])->find($orderId);
 
-            if (!$order) {
-                return response()->json(['message' => 'Order not found'], 404);
-            }
+    //         if (!$order) {
+    //             return response()->json(['message' => 'Order not found'], 404);
+    //         }
 
-            return response()->json([
-                'message' => "Order #$orderId fetched successfully",
-                'data' => $order
-            ]);
-        } catch (\Exception $e) {
-            Log::error("Error fetching order #$orderId: " . $e->getMessage());
-            return response()->json([
-                'message' => 'Error fetching order',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
+    //         return response()->json([
+    //             'message' => "Order #$orderId fetched successfully",
+    //             'data' => $order
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         Log::error("Error fetching order #$orderId: " . $e->getMessage());
+    //         return response()->json([
+    //             'message' => 'Error fetching order',
+    //             'error' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
 
     // POST /api/orders
     public function createOrder(Request $request)
@@ -310,5 +309,4 @@ class OrderController extends Controller
             'message' => "You have a new incoming order #{$orderId}. Please check your app for details.",
         ]);
     }
-}
 }
