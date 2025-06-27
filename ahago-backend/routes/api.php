@@ -72,19 +72,7 @@ Route::controller(DriverProfileController::class)->prefix('drivers')->group(func
 });
 Route::middleware('auth:sanctum')->put('/driver/profile', [DriverProfileController::class, 'updateDriverProfile']);
 
-// Orders
-Route::controller(OrderController::class)->prefix('orders')->group(function() {
-    Route::get('/', 'getOrders');
-    Route::get('/rest/{restId}', 'getOrdersByRest');
-    Route::get('/recent/{restId}', 'getRecentOrders');    // last 7 days on dashboard
-    Route::post('/', 'createOrder');
-    Route::get('/{orderId}', 'getOrder');
-    Route::patch('/{orderId}', 'updateOrder');
-    Route::delete('/{orderId}', 'deleteOrder');
-    Route::patch('/{orderId}/status', 'updateOrderStatus');    // Update status only
-    Route::post('/assign', 'assignOrderToDriver');             // Assign driver to order
-    Route::get('/{orderId}/details', 'showOrderDetails');      // Detailed order info
-});
+
 
 // User management
 Route::prefix('users')->group(function () {
@@ -137,16 +125,20 @@ Route::controller(FoodItemController::class)->prefix('foodItems')->group(functio
 
 Route::get('/restaurants/{id}/foodItems', [FoodItemController::class, 'getFoodItemsByRestaurant']);
 
+// Orders
 Route::controller(OrderController::class)->prefix('orders')->group(function() {
-    Route::get('/','getOrders');
+    Route::get('/', 'getOrders');
     Route::get('/count','getOrdersCount');
     Route::get('/orderTypes','getOrdersTypes');
-    Route::get('/rest/{restId}','getOrdersByRest');
-    Route::get('/recent/{restId}','getRecentOrders');    // last 7 days on dashboard
-    Route::post('/','createOrder');
-    Route::get('/{orderId}','getOrder');
-    Route::patch('/{orderId}','updateOrder');
-    Route::delete('/{orderId}','deleteOrder');
+    Route::get('/rest/{restId}', 'getOrdersByRest');
+    Route::get('/recent/{restId}', 'getRecentOrders');    // last 7 days on dashboard
+    Route::post('/', 'createOrder');
+    Route::get('/{orderId}', 'getOrder');
+    Route::patch('/{orderId}', 'updateOrder');
+    Route::delete('/{orderId}', 'deleteOrder');
+    Route::patch('/{orderId}/status', 'updateOrderStatus');    // Update status only
+    Route::post('/assign', 'assignOrderToDriver');             // Assign driver to order
+    Route::get('/{orderId}/details', 'showOrderDetails');      // Detailed order info
 });
 
 // Order Items
@@ -164,6 +156,7 @@ Route::controller(OrderItemController::class)->prefix('orderItems')->group(funct
 // Customers
 Route::controller(CustomerController::class)->prefix('customers')->group(function() {
     Route::get('/','getCustomers');
+    Route::get('/count','getCustomersCount');
     Route::post('/','createCustomer');
     Route::get('/{customerId}','getCustomer');
     Route::patch('/{customerId}','updateCustomer');

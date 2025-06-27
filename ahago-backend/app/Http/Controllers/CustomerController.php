@@ -13,6 +13,11 @@ class CustomerController extends Controller
         return CustomerProfile::with('user')->get();
     }
 
+     // GET /api/customers/count
+    public function getCustomersCount(){
+        return CustomerProfile::all()->count();
+    }
+
     // POST /api/customers
     public function createCustomer(Request $request)
     {

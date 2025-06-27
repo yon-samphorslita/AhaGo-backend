@@ -19,10 +19,7 @@ class CustomerProfileController extends Controller
     }
 
 
-    // GET /api/customers/count
-    public function getCustomersCount(){
-        return CustomerProfile::all()->count();
-    }
+   
 
     public function createCustomer(Request $request)
     {

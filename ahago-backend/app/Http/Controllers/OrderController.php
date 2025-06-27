@@ -36,7 +36,8 @@ class OrderController extends Controller
     // GET /api/orders/count
     public function getOrdersCount()
     {
-        return Order::all()->count();
+        $orderC = Order::all()->count();
+        return $orderC;
     }
 
     // GET /api/orders/orderTypes
@@ -54,6 +55,33 @@ class OrderController extends Controller
         return Order::with('foodItems')
             ->where('restaurant_id', $restId)
             ->get();
+    }
+
+    // GET /api/orders/recent/:restId
+    public function getRecentOrders($restId)
+    {
+        // array of dates from last 7 days
+        $dates = [];
+        $ordersByDay = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = Carbon::today()->subDays($i)->toDateString();
+            $dates[] = $date;
+            $orders = Order::whereDate('created_at', $date)
+            ->where('restaurant_id', $restId)
+            ->get();
+            $ordersByDay[] = $orders->count();
+        };
+        // array of #orders per day from last 7 days
+        // $sevenDaysAgo = now()->subDays(7)->toDateString(); // returns 'YYYY-MM-DD'
+        // $orders = Order::whereDate('created_at', '>=', $sevenDaysAgo)
+        //             ->where('restaurant_id', $restId)
+        //             ->get();
+        
+        return response()->json([
+            'dates' => $dates,
+            'orders' => $ordersByDay
+        ]);
+
     }
 
     // ✅ FIXED: GET /api/orders/{orderId}
@@ -139,7 +167,7 @@ class OrderController extends Controller
             'driver_id' => 'integer',
             'status' => ['sometimes', new Enum(OrderStatus::class)],
             'total_amount' => ['nullable', 'numeric'],
-            'payment_status' => 'nullable|boolean',
+            'payment_status' => ['sometimes', new Enum(PaymentStatus::class)],
             'remark' => ['string', 'nullable'],
             'order_type' => ['sometimes', new Enum(OrderType::class)],
         ]);
@@ -308,5 +336,34 @@ class OrderController extends Controller
             'title' => "New Incoming Order",
             'message' => "You have a new incoming order #{$orderId}. Please check your app for details.",
         ]);
+    }
+
+        // Status Notification Dispatcher
+    protected function sendNotificationByStatus($driverId, $orderId, $status)
+    {
+        switch ($status) {
+            case OrderStatus::PENDING->value:
+                $this->notifyDriver($driverId, $orderId, "New Incoming Order", "You have a new incoming order #$orderId. Please check your app for details.");
+                break;
+
+            case OrderStatus::PREPARING->value:
+                $this->notifyDriver($driverId, $orderId, "Order Accepted", "You have successfully accepted order #$orderId. Please proceed with the delivery.");
+                break;
+
+            case OrderStatus::COMPLETED->value:
+                $this->notifyDriver($driverId, $orderId, "Order Completed", "Order #$orderId has been completed successfully. Thank you for your service!");
+                break;
+        }
+    }
+
+        // Create Notification Only If It Doesn't Exist
+    protected function notifyDriver($driverId, $orderId, $title, $message)
+    {
+        Notification::create([
+            'driver_id' => $driverId,
+            'title' => $title,
+            'message' => $message,
+        ]);
+        Log::info("Notification sent: [$title] to driver $driverId for order $orderId");
     }
 }
